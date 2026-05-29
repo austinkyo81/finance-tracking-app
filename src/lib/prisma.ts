@@ -2,8 +2,12 @@ import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@/generated/prisma/client";
 
 function createPrismaClient() {
+  const url = process.env.TURSO_DATABASE_URL ?? "file:./dev.db";
+  if (!process.env.TURSO_DATABASE_URL) {
+    console.warn("[prisma] TURSO_DATABASE_URL not set — falling back to local file:./dev.db");
+  }
   const adapter = new PrismaLibSql({
-    url: process.env.TURSO_DATABASE_URL ?? "file:./dev.db",
+    url,
     authToken: process.env.TURSO_AUTH_TOKEN,
   });
   return new PrismaClient({ adapter, log: ["error"] });
