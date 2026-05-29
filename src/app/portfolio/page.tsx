@@ -4,7 +4,6 @@ import { getStockAssets } from "@/app/portfolio/actions";
 import PortfolioForm from "@/components/PortfolioForm";
 import PortfolioTable from "@/components/PortfolioTable";
 import SyncButton from "@/app/portfolio/SyncButton";
-import { BarChart3 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export default async function PortfolioPage() {
@@ -14,43 +13,31 @@ export default async function PortfolioPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
+      {/* Page header — on the blue gradient */}
+      <div className="flex items-center justify-between mb-6 px-1">
+        <div>
+          <h1
+            className="text-3xl font-bold tracking-tight text-white"
             style={{
-              background: "linear-gradient(135deg, rgba(56,189,248,0.2) 0%, rgba(56,189,248,0.1) 100%)",
-              border: "1px solid rgba(56,189,248,0.2)",
+              fontFamily: "var(--font-display), Syne, sans-serif",
+              letterSpacing: "-0.02em",
             }}
           >
-            <BarChart3 className="w-4 h-4" style={{ color: "#38bdf8" }} />
-          </div>
-          <div>
-            <h1
-              className="text-2xl font-bold tracking-tight"
-              style={{
-                color: "#f0f4ff",
-                fontFamily: "var(--font-display), Syne, sans-serif",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Portfolio
-            </h1>
-            <p className="text-sm" style={{ color: "#4a6080" }}>
-              {totalPositions} position{totalPositions !== 1 ? "s" : ""} &nbsp;&middot;&nbsp; {formatCurrency(totalValue)} total value
-            </p>
-          </div>
+            Portfolio
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.65)" }}>
+            {totalPositions} position{totalPositions !== 1 ? "s" : ""} &nbsp;&middot;&nbsp; {formatCurrency(totalValue)} total value
+          </p>
         </div>
 
         <SyncButton />
       </div>
 
       <div className="space-y-6">
-        {/* Add position form */}
+        {/* Add position form — white card */}
         <PortfolioForm />
 
-        {/* Portfolio table */}
+        {/* Portfolio table — white card */}
         <PortfolioTable assets={assets} />
       </div>
     </div>

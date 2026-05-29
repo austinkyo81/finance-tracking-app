@@ -1,0 +1,1 @@
+- [Finance Tracker Project](project-finance-tracker.md) — Stack, models, file locations, and mutation patterns for the Personal Finance & Portfolio Tracker

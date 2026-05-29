@@ -25,30 +25,30 @@ export default function PortfolioForm() {
 
   return (
     <div
-      className="rounded-xl overflow-hidden"
+      className="rounded-2xl overflow-hidden"
       style={{
-        backgroundColor: "#111827",
-        border: "1px solid #1e2d45",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03)",
+        backgroundColor: "#1e293b",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
       }}
     >
       {/* Header */}
       <div
         className="px-5 py-4 flex items-center gap-3"
-        style={{ borderBottom: "1px solid #1e2d45" }}
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div
           className="w-7 h-7 rounded-lg flex items-center justify-center"
-          style={{
-            backgroundColor: "rgba(56, 189, 248, 0.12)",
-            border: "1px solid rgba(56, 189, 248, 0.2)",
-          }}
+          style={{ backgroundColor: "rgba(37,99,235,0.2)" }}
         >
-          <TrendingUp className="w-4 h-4" style={{ color: "#38bdf8" }} />
+          <TrendingUp className="w-4 h-4" style={{ color: "#60a5fa" }} />
         </div>
         <h2
-          className="text-sm font-semibold uppercase tracking-widest"
-          style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+          className="text-xs font-semibold uppercase tracking-widest"
+          style={{
+            color: "#64748b",
+            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+          }}
         >
           Add Position
         </h2>
@@ -91,7 +91,14 @@ export default function PortfolioForm() {
             size="md"
             disabled={isPending}
             className="shrink-0"
-            style={{ paddingTop: "10px", paddingBottom: "10px" }}
+            style={{
+              paddingTop: "10px",
+              paddingBottom: "10px",
+              background: "linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)",
+              color: "#ffffff",
+              border: "none",
+              boxShadow: "0 4px 16px rgba(37,99,235,0.35)",
+            }}
           >
             {isPending ? (
               <>

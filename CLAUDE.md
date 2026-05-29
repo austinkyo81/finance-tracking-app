@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Important: Next.js version
 
-This project uses **Next.js 16**, which has breaking changes from prior versions. Read `node_modules/next/dist/docs/` before writing any Next.js-specific code. Do not assume API conventions from older versions.
+This project uses **Next.js 16**, which has breaking changes from prior versions. Do not assume API conventions from older versions.
 
 ## Commands
 
@@ -35,13 +35,15 @@ To pull Vercel's env vars locally: `vercel env pull .env.development.local`
 ## Architecture
 
 ### Data flow
-Pages are **React Server Components** that call Server Actions directly to fetch data. There is no API route layer — the page renders, calls the action, and passes results to components as props.
+Pages are **React Server Components** that call Server Actions directly to fetch data. There is no API route layer.
 
 ```
 page.tsx (RSC) → actions.ts ("use server") → src/lib/prisma.ts → Turso cloud
 ```
 
-Client Components (`"use client"`) are used only at the leaf level for interactivity: forms, delete buttons, the sync button. They call the same Server Actions for mutations.
+Client Components (`"use client"`) are used only at the leaf level for interactivity: `TransactionForm`, `PortfolioForm`, `SyncButton`, and the two delete buttons. They call the same Server Actions for mutations.
+
+**Critical RSC constraint:** Never add `onClick`, `onChange`, `onMouseEnter`, or any other event handler props to elements inside Server Components. Use Tailwind hover/focus classes instead (e.g. `hover:bg-slate-700/40`). Violating this causes a runtime 500 error, not a TypeScript error.
 
 ### Prisma setup (Prisma 7)
 Prisma 7 uses a driver adapter pattern — `PrismaClient` **must** be constructed with an adapter or it throws. The singleton in `src/lib/prisma.ts` wraps `PrismaLibSql` from `@prisma/adapter-libsql`.
@@ -51,7 +53,7 @@ Prisma 7 uses a driver adapter pattern — `PrismaClient` **must** be constructe
 import { prisma } from "@/lib/prisma";
 ```
 
-The generated client lives at `src/generated/prisma/client` (not `@prisma/client`). Types (`Transaction`, `StockAsset`) are imported from `@/generated/prisma/client`. The client is generated at install time via the `postinstall` script in `package.json`.
+The generated client lives at `src/generated/prisma/client` (not `@prisma/client`). Types (`Transaction`, `StockAsset`) are imported from `@/generated/prisma/client`. The client is generated at install time via the `postinstall` script.
 
 After any schema change: update `prisma/migrate.ts` with the new SQL, run it, then run `npx prisma generate`.
 
@@ -65,8 +67,46 @@ Every mutation calls `revalidatePath("/")` and the relevant route path so the da
 ### Stock prices
 `src/lib/api.ts` wraps `yahoo-finance2`. It always returns `number | null` — never throws. `syncStockPrices()` uses `Promise.allSettled` so one failed ticker doesn't abort the rest. The `lastPrice` in the DB is the fallback when the API returns null.
 
-### Styling
-Tailwind CSS v4. Use the `cn()` helper from `@/lib/utils` for conditional class merging. Inline `style` props are used for dynamic values Tailwind can't generate statically (e.g. percentage widths for progress bars).
-
 ### Page rendering
 All three pages export `export const dynamic = "force-dynamic"` — required to prevent static prerendering on Vercel so pages fetch live data on every request.
+
+## Styling
+
+**Stack:** Tailwind CSS v4 + inline `style` props for values Tailwind can't generate statically (e.g. percentage widths, dynamic colors).
+
+- Use `cn()` from `@/lib/utils` for conditional class merging.
+- CSS variables are defined in `@theme inline {}` in `src/app/globals.css` (Tailwind v4 syntax — no `@tailwind base/components/utilities`).
+
+### Design system (dark fintech theme)
+
+| Token | Value |
+|---|---|
+| Background | `#0F172A` (slate-900) |
+| Surface (cards) | `#1E293B` (slate-800) |
+| Surface raised | `#334155` (slate-700) |
+| Border | `rgba(255,255,255,0.08)` |
+| Text primary | `#F8FAFC` |
+| Text secondary | `#94A3B8` |
+| Text muted | `#64748B` |
+| Accent / CTA | `#2563EB` (blue-600) |
+| Income green | `#34D399` |
+| Expense red | `#FB7185` |
+
+**Fonts:** IBM Plex Sans (headings + body, variable `--font-display` / `--font-body`) + DM Mono (numbers, tickers, variable `--font-mono`).
+
+**Card pattern:**
+```tsx
+<div style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }} className="rounded-2xl overflow-hidden">
+```
+
+**Row hover pattern (RSC-safe):**
+```tsx
+className="... transition-colors duration-150 hover:bg-slate-700/40"
+```
+
+### UI component library
+Reusable primitives in `src/components/ui/`:
+- `Button` — variants: `primary` (solid blue with glow), `default`, `danger`, `success`, `ghost`
+- `Input` — dark bg (`#0f172a`), slate-700 border, blue focus ring
+- `Select` — same dark treatment as Input, with `ChevronDown` overlay and `appearance-none`
+- `Card` — dark surface wrapper with optional title and `headerAction` slot

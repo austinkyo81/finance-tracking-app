@@ -15,18 +15,18 @@ interface TransactionListProps {
   transactions: Transaction[];
 }
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
-  Rent:          { bg: "rgba(251,113,133,0.12)", text: "#fb7185" },
-  Food:          { bg: "rgba(245,158,11,0.12)",  text: "#f59e0b" },
-  Subscriptions: { bg: "rgba(167,139,250,0.12)", text: "#a78bfa" },
-  Utilities:     { bg: "rgba(96,165,250,0.12)",  text: "#60a5fa" },
-  Entertainment: { bg: "rgba(244,114,182,0.12)", text: "#f472b6" },
-  Salary:        { bg: "rgba(52,211,153,0.12)",  text: "#34d399" },
-  Other:         { bg: "rgba(139,164,192,0.12)", text: "#8ba4c0" },
+const CATEGORY_BADGE: Record<string, { bg: string; text: string }> = {
+  Rent:          { bg: "rgba(96,165,250,0.12)", text: "#93c5fd" },
+  Food:          { bg: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
+  Subscriptions: { bg: "rgba(167,139,250,0.12)", text: "#c4b5fd" },
+  Utilities:     { bg: "rgba(251,191,36,0.12)", text: "#fcd34d" },
+  Entertainment: { bg: "rgba(251,113,133,0.12)", text: "#fda4af" },
+  Salary:        { bg: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
+  Other:         { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" },
 };
 
-function getCategoryStyle(category: string) {
-  return CATEGORY_COLORS[category] ?? { bg: "rgba(139,164,192,0.12)", text: "#8ba4c0" };
+function getCategoryBadge(category: string) {
+  return CATEGORY_BADGE[category] ?? { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" };
 }
 
 function groupByMonth(transactions: Transaction[]): [string, Transaction[]][] {
@@ -45,22 +45,23 @@ export default function TransactionList({ transactions }: TransactionListProps) 
   if (transactions.length === 0) {
     return (
       <div
-        className="rounded-xl flex flex-col items-center justify-center py-16"
+        className="rounded-2xl flex flex-col items-center justify-center py-16"
         style={{
-          backgroundColor: "#111827",
-          border: "1px dashed #1e2d45",
+          backgroundColor: "#1e293b",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
         }}
       >
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
-          style={{ backgroundColor: "#0b0f1a", border: "1px solid #1e2d45" }}
+          style={{ backgroundColor: "rgba(37,99,235,0.15)" }}
         >
-          <span style={{ color: "#4a6080", fontSize: "20px" }}>$</span>
+          <span className="text-lg font-bold" style={{ color: "#60a5fa" }}>$</span>
         </div>
-        <p className="text-sm font-medium" style={{ color: "#4a6080" }}>
+        <p className="text-sm font-medium" style={{ color: "#94a3b8" }}>
           No transactions yet
         </p>
-        <p className="text-xs mt-1" style={{ color: "#2a3f5e" }}>
+        <p className="text-xs mt-1" style={{ color: "#64748b" }}>
           Add your first transaction above
         </p>
       </div>
@@ -74,49 +75,56 @@ export default function TransactionList({ transactions }: TransactionListProps) 
       {groups.map(([month, txs]) => (
         <div key={month}>
           {/* Month header */}
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-3 px-1">
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+              style={{
+                color: "#94a3b8",
+                fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+              }}
             >
               {month}
             </span>
-            <div className="flex-1 h-px" style={{ backgroundColor: "#1e2d45" }} />
-            <span className="text-xs" style={{ color: "#2a3f5e" }}>
+            <div
+              className="flex-1 h-px"
+              style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+            />
+            <span
+              className="text-xs"
+              style={{ color: "#64748b" }}
+            >
               {txs.length} transaction{txs.length !== 1 ? "s" : ""}
             </span>
           </div>
 
-          {/* Transaction rows */}
+          {/* Transaction rows — dark card */}
           <div
-            className="rounded-xl overflow-hidden"
+            className="rounded-2xl overflow-hidden"
             style={{
-              backgroundColor: "#111827",
-              border: "1px solid #1e2d45",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              backgroundColor: "#1e293b",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
           >
             {txs.map((tx, idx) => {
               const isIncome = tx.type === "INCOME";
-              const catStyle = getCategoryStyle(tx.category);
+              const badge = getCategoryBadge(tx.category);
               const isLast = idx === txs.length - 1;
 
               return (
                 <div
                   key={tx.id}
-                  className="flex items-center gap-4 px-4 py-3.5 transition-colors duration-150 hover:bg-white/[0.02] group"
-                  style={
-                    !isLast
-                      ? { borderBottom: "1px solid #162033" }
-                      : undefined
-                  }
+                  className="flex items-center gap-4 px-4 py-3.5 transition-colors duration-150 group cursor-pointer hover:bg-slate-700/40"
+                  style={{
+                    borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)",
+                  }}
                 >
                   {/* Date */}
                   <div
                     className="w-10 text-center shrink-0"
                     style={{
+                      color: "#64748b",
                       fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                      color: "#4a6080",
                       fontSize: "11px",
                     }}
                   >
@@ -125,11 +133,11 @@ export default function TransactionList({ transactions }: TransactionListProps) 
 
                   {/* Category badge */}
                   <span
-                    className="px-2 py-0.5 rounded-md text-xs font-medium shrink-0"
+                    className="px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
                     style={{
-                      backgroundColor: catStyle.bg,
-                      color: catStyle.text,
-                      fontFamily: "var(--font-body), 'DM Sans', sans-serif",
+                      backgroundColor: badge.bg,
+                      color: badge.text,
+                      fontFamily: "var(--font-body), 'IBM Plex Sans', sans-serif",
                     }}
                   >
                     {tx.category}
@@ -138,7 +146,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
                   {/* Description */}
                   <span
                     className="flex-1 text-sm truncate"
-                    style={{ color: tx.description ? "#8ba4c0" : "#2a3f5e" }}
+                    style={{ color: tx.description ? "#94a3b8" : "#475569" }}
                   >
                     {tx.description ?? "—"}
                   </span>

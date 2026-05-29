@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import { getTransactions } from "@/app/transactions/actions";
 import TransactionForm from "@/components/TransactionForm";
 import TransactionList from "@/components/TransactionList";
-import { ArrowLeftRight } from "lucide-react";
 
 export default async function TransactionsPage() {
   const transactions = await getTransactions();
@@ -18,32 +17,23 @@ export default async function TransactionsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-8">
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center"
+      {/* Page title */}
+      <div className="mb-6 px-1">
+        <h1
+          className="text-3xl font-bold tracking-tight"
           style={{
-            background: "linear-gradient(135deg, rgba(56,189,248,0.2) 0%, rgba(52,211,153,0.2) 100%)",
-            border: "1px solid rgba(56,189,248,0.2)",
+            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+            letterSpacing: "-0.02em",
+            color: "#f8fafc",
           }}
         >
-          <ArrowLeftRight className="w-4 h-4" style={{ color: "#38bdf8" }} />
-        </div>
-        <div>
-          <h1
-            className="text-2xl font-bold tracking-tight"
-            style={{
-              color: "#f0f4ff",
-              fontFamily: "var(--font-display), Syne, sans-serif",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Transactions
-          </h1>
-          <p className="text-sm" style={{ color: "#4a6080" }}>
-            {transactions.length} total &nbsp;&middot;&nbsp; {transactions.filter(t => t.type === "INCOME").length} income &nbsp;&middot;&nbsp; {transactions.filter(t => t.type === "EXPENSE").length} expenses
-          </p>
-        </div>
+          Transactions
+        </h1>
+        <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>
+          {transactions.length} total &nbsp;&middot;&nbsp;{" "}
+          {transactions.filter((t) => t.type === "INCOME").length} income &nbsp;&middot;&nbsp;{" "}
+          {transactions.filter((t) => t.type === "EXPENSE").length} expenses
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -51,16 +41,23 @@ export default async function TransactionsPage() {
         <div className="space-y-4">
           <TransactionForm />
 
-          {/* Quick stats */}
+          {/* Quick stats — dark tinted cards */}
           <div className="grid grid-cols-2 gap-3">
             <div
-              className="rounded-xl p-4"
+              className="rounded-2xl p-4"
               style={{
-                backgroundColor: "#111827",
-                border: "1px solid #1e2d45",
+                backgroundColor: "rgba(6,78,59,0.3)",
+                border: "1px solid rgba(52,211,153,0.2)",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
               }}
             >
-              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}>
+              <p
+                className="text-xs uppercase tracking-widest mb-1"
+                style={{
+                  color: "#6ee7b7",
+                  fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+                }}
+              >
                 Income
               </p>
               <p
@@ -74,13 +71,20 @@ export default async function TransactionsPage() {
               </p>
             </div>
             <div
-              className="rounded-xl p-4"
+              className="rounded-2xl p-4"
               style={{
-                backgroundColor: "#111827",
-                border: "1px solid #1e2d45",
+                backgroundColor: "rgba(76,5,25,0.3)",
+                border: "1px solid rgba(251,113,133,0.2)",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
               }}
             >
-              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}>
+              <p
+                className="text-xs uppercase tracking-widest mb-1"
+                style={{
+                  color: "#fda4af",
+                  fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+                }}
+              >
                 Expenses
               </p>
               <p

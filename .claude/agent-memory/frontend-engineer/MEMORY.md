@@ -1,0 +1,1 @@
+- [FinTrack Project](project-fintrack.md) — Next.js 16 App Router finance tracker; stack, design system, component architecture, and server/client split conventions

@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, DM_Mono } from "next/font/google";
+import { IBM_Plex_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 
-const syne = Syne({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-body",
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const dmMono = DM_Mono({
@@ -34,14 +28,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} h-full`}
-      style={{ backgroundColor: "#0b0f1a" }}
+      className={`${ibmPlexSans.variable} ${dmMono.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col relative" style={{ fontFamily: "var(--font-body), 'DM Sans', sans-serif" }}>
-        <NavBar />
-        <main className="flex-1 relative z-10">
+      <body className="min-h-screen flex flex-col" style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}>
+        <main className="flex-1 pb-28">
           {children}
         </main>
+        <NavBar />
       </body>
     </html>
   );

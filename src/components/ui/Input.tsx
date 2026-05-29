@@ -16,7 +16,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             className="text-xs font-medium uppercase tracking-widest"
-            style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+            style={{
+              color: "#94a3b8",
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+            }}
           >
             {label}
           </label>
@@ -25,37 +28,37 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "w-full rounded-lg px-3.5 py-2.5 text-sm transition-all duration-200",
-            "placeholder:text-slate-600",
+            "w-full rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200",
+            "border",
+            "placeholder:text-slate-500",
             "focus:outline-none",
-            error ? "" : "",
+            error
+              ? "border-rose-500 text-slate-100"
+              : "border-slate-700 text-slate-100",
             className
           )}
           style={{
-            backgroundColor: "#111827",
-            color: "#f0f4ff",
-            border: error ? "1px solid rgba(251, 113, 133, 0.5)" : "1px solid #1e2d45",
-            boxShadow: "inset 0 1px 2px rgba(0,0,0,0.3)",
+            backgroundColor: "#0f172a",
+            boxShadow: error
+              ? "0 0 0 3px rgba(251,113,133,0.15)"
+              : "none",
           }}
           onFocus={(e) => {
-            e.currentTarget.style.border = "1px solid rgba(56, 189, 248, 0.4)";
-            e.currentTarget.style.boxShadow =
-              "inset 0 1px 2px rgba(0,0,0,0.3), 0 0 0 3px rgba(56, 189, 248, 0.06)";
+            e.currentTarget.style.borderColor = "#3b82f6";
+            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37,99,235,0.2)";
             props.onFocus?.(e);
           }}
           onBlur={(e) => {
-            e.currentTarget.style.border = error
-              ? "1px solid rgba(251, 113, 133, 0.5)"
-              : "1px solid #1e2d45";
-            e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.3)";
+            e.currentTarget.style.borderColor = error ? "#f43f5e" : "#334155";
+            e.currentTarget.style.boxShadow = error
+              ? "0 0 0 3px rgba(251,113,133,0.15)"
+              : "none";
             props.onBlur?.(e);
           }}
           {...props}
         />
         {error && (
-          <p className="text-xs" style={{ color: "#fb7185" }}>
-            {error}
-          </p>
+          <p className="text-xs text-rose-400">{error}</p>
         )}
       </div>
     );

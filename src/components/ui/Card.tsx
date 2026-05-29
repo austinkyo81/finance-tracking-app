@@ -11,24 +11,24 @@ interface CardProps {
 function Card({ title, children, className, headerAction }: CardProps) {
   return (
     <div
-      className={cn("rounded-xl overflow-hidden", className)}
+      className={cn("rounded-2xl overflow-hidden", className)}
       style={{
-        backgroundColor: "#111827",
-        border: "1px solid #1e2d45",
-        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.03)",
+        backgroundColor: "#1e293b",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)",
       }}
     >
       {(title || headerAction) && (
         <div
           className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: "1px solid #1e2d45" }}
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
         >
           {title && (
             <h2
-              className="text-sm font-semibold uppercase tracking-widest"
+              className="text-xs font-semibold uppercase tracking-widest"
               style={{
-                color: "#4a6080",
-                fontFamily: "var(--font-display), Syne, sans-serif",
+                color: "#64748b",
+                fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
               }}
             >
               {title}

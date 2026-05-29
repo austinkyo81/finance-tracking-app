@@ -29,27 +29,30 @@ export default function SyncButton() {
       icon: isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />,
       label: isPending ? "Syncing..." : "Sync Prices",
       style: {
-        backgroundColor: "rgba(56,189,248,0.1)",
-        color: "#38bdf8",
-        border: "1px solid rgba(56,189,248,0.2)",
+        backgroundColor: "#1e293b",
+        color: "#60a5fa",
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
       },
     },
     success: {
       icon: <CheckCircle2 className="w-4 h-4" />,
       label: "Prices updated",
       style: {
-        backgroundColor: "rgba(52,211,153,0.1)",
+        backgroundColor: "#052e16",
         color: "#34d399",
         border: "1px solid rgba(52,211,153,0.2)",
+        boxShadow: "0 2px 8px rgba(52,211,153,0.1)",
       },
     },
     error: {
       icon: <AlertCircle className="w-4 h-4" />,
       label: "Sync failed",
       style: {
-        backgroundColor: "rgba(251,113,133,0.1)",
+        backgroundColor: "#1f0a0d",
         color: "#fb7185",
         border: "1px solid rgba(251,113,133,0.2)",
+        boxShadow: "0 2px 8px rgba(251,113,133,0.1)",
       },
     },
   };
@@ -60,7 +63,7 @@ export default function SyncButton() {
     <button
       onClick={handleSync}
       disabled={isPending}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98]"
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98]"
       style={current.style}
     >
       {current.icon}

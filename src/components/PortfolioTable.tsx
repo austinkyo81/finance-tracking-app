@@ -17,22 +17,23 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
   if (assets.length === 0) {
     return (
       <div
-        className="rounded-xl flex flex-col items-center justify-center py-16"
+        className="rounded-2xl flex flex-col items-center justify-center py-16"
         style={{
-          backgroundColor: "#111827",
-          border: "1px dashed #1e2d45",
+          backgroundColor: "#1e293b",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
         }}
       >
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
-          style={{ backgroundColor: "#0b0f1a", border: "1px solid #1e2d45" }}
+          style={{ backgroundColor: "rgba(37,99,235,0.15)" }}
         >
-          <span style={{ color: "#4a6080", fontSize: "18px" }}>$</span>
+          <span className="text-lg font-bold" style={{ color: "#60a5fa" }}>$</span>
         </div>
-        <p className="text-sm font-medium" style={{ color: "#4a6080" }}>
+        <p className="text-sm font-medium" style={{ color: "#94a3b8" }}>
           No positions yet
         </p>
-        <p className="text-xs mt-1" style={{ color: "#2a3f5e" }}>
+        <p className="text-xs mt-1" style={{ color: "#64748b" }}>
           Add your first stock position above
         </p>
       </div>
@@ -43,11 +44,11 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
 
   return (
     <div
-      className="rounded-xl overflow-hidden"
+      className="rounded-2xl overflow-hidden"
       style={{
-        backgroundColor: "#111827",
-        border: "1px solid #1e2d45",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+        backgroundColor: "#1e293b",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
       }}
     >
       {/* Table header */}
@@ -55,8 +56,8 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
         className="grid px-5 py-3"
         style={{
           gridTemplateColumns: "1fr 1fr 1fr 1fr 44px",
-          borderBottom: "1px solid #1e2d45",
-          backgroundColor: "#0d1520",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          backgroundColor: "rgba(15,23,42,0.5)",
         }}
       >
         {["Ticker", "Shares", "Last Price", "Total Value", ""].map((col) => (
@@ -64,8 +65,8 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
             key={col}
             className="text-xs font-semibold uppercase tracking-widest"
             style={{
-              color: "#4a6080",
-              fontFamily: "var(--font-display), Syne, sans-serif",
+              color: "#64748b",
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
               textAlign: col === "Shares" || col === "Last Price" || col === "Total Value" ? "right" : "left",
             }}
           >
@@ -82,25 +83,22 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
         return (
           <div
             key={asset.id}
-            className="grid items-center px-5 py-3.5 transition-colors duration-150 hover:bg-white/[0.02] group"
+            className="grid items-center px-5 py-3.5 transition-colors duration-150 group cursor-pointer hover:bg-slate-700/40"
             style={{
               gridTemplateColumns: "1fr 1fr 1fr 1fr 44px",
-              borderBottom: isLast ? "none" : "1px solid #162033",
+              borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)",
             }}
           >
             {/* Ticker */}
             <div className="flex items-center gap-2.5">
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{
-                  backgroundColor: "rgba(56,189,248,0.1)",
-                  border: "1px solid rgba(56,189,248,0.15)",
-                }}
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                style={{ backgroundColor: "rgba(37,99,235,0.2)" }}
               >
                 <span
                   className="text-xs font-bold"
                   style={{
-                    color: "#38bdf8",
+                    color: "#60a5fa",
                     fontFamily: "var(--font-mono), 'DM Mono', monospace",
                   }}
                 >
@@ -109,19 +107,17 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
               </div>
               <div>
                 <span
-                  className="text-sm font-semibold"
+                  className="text-sm font-semibold px-2.5 py-0.5 rounded-full"
                   style={{
-                    color: "#f0f4ff",
+                    backgroundColor: "rgba(37,99,235,0.15)",
+                    color: "#93c5fd",
                     fontFamily: "var(--font-mono), 'DM Mono', monospace",
                     letterSpacing: "0.04em",
                   }}
                 >
                   {asset.ticker}
                 </span>
-                <p
-                  className="text-xs"
-                  style={{ color: "#4a6080" }}
-                >
+                <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
                   {formatDate(asset.updatedAt)}
                 </p>
               </div>
@@ -131,7 +127,7 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
             <span
               className="text-sm tabular-nums text-right"
               style={{
-                color: "#8ba4c0",
+                color: "#94a3b8",
                 fontFamily: "var(--font-mono), 'DM Mono', monospace",
               }}
             >
@@ -142,7 +138,7 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
             <span
               className="text-sm tabular-nums text-right"
               style={{
-                color: "#8ba4c0",
+                color: "#94a3b8",
                 fontFamily: "var(--font-mono), 'DM Mono', monospace",
               }}
             >
@@ -153,7 +149,7 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
             <span
               className="text-sm font-semibold tabular-nums text-right"
               style={{
-                color: "#38bdf8",
+                color: "#60a5fa",
                 fontFamily: "var(--font-mono), 'DM Mono', monospace",
               }}
             >
@@ -173,13 +169,16 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
         className="grid items-center px-5 py-3.5"
         style={{
           gridTemplateColumns: "1fr 1fr 1fr 1fr 44px",
-          borderTop: "1px solid #1e2d45",
-          backgroundColor: "#0d1520",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          backgroundColor: "rgba(15,23,42,0.4)",
         }}
       >
         <span
           className="text-xs font-semibold uppercase tracking-widest"
-          style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+          style={{
+            color: "#64748b",
+            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+          }}
         >
           Total
         </span>
@@ -188,7 +187,7 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
         <span
           className="text-base font-bold tabular-nums text-right"
           style={{
-            color: "#38bdf8",
+            color: "#60a5fa",
             fontFamily: "var(--font-mono), 'DM Mono', monospace",
           }}
         >

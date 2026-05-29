@@ -14,18 +14,36 @@ interface DashboardSummaryProps {
   expensesByCategory: ExpenseCategory[];
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Rent: "#fb7185",
-  Food: "#f59e0b",
-  Subscriptions: "#a78bfa",
-  Utilities: "#60a5fa",
-  Entertainment: "#f472b6",
-  Salary: "#34d399",
-  Other: "#8ba4c0",
+// Distinct colors for dark background bars — cycling palette
+const CATEGORY_BAR_COLORS: Record<string, string> = {
+  Rent:          "#60a5fa",  // blue
+  Food:          "#34d399",  // green
+  Subscriptions: "#a78bfa",  // purple
+  Utilities:     "#fbbf24",  // amber
+  Entertainment: "#fb7185",  // rose
+  Salary:        "#34d399",  // green
+  Other:         "#94a3b8",  // slate
 };
 
-function getCategoryColor(category: string): string {
-  return CATEGORY_COLORS[category] ?? "#8ba4c0";
+const CYCLING_COLORS = ["#60a5fa", "#34d399", "#a78bfa", "#fbbf24", "#fb7185"];
+
+// Badge colors suited for dark surfaces
+const CATEGORY_BADGE: Record<string, { bg: string; text: string }> = {
+  Rent:          { bg: "rgba(96,165,250,0.12)", text: "#93c5fd" },
+  Food:          { bg: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
+  Subscriptions: { bg: "rgba(167,139,250,0.12)", text: "#c4b5fd" },
+  Utilities:     { bg: "rgba(251,191,36,0.12)", text: "#fcd34d" },
+  Entertainment: { bg: "rgba(251,113,133,0.12)", text: "#fda4af" },
+  Salary:        { bg: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
+  Other:         { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" },
+};
+
+function getCategoryBarColor(category: string, index: number): string {
+  return CATEGORY_BAR_COLORS[category] ?? CYCLING_COLORS[index % CYCLING_COLORS.length];
+}
+
+function getCategoryBadge(category: string): { bg: string; text: string } {
+  return CATEGORY_BADGE[category] ?? { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" };
 }
 
 export default function DashboardSummary({
@@ -40,175 +58,154 @@ export default function DashboardSummary({
   const isPositiveWorth = netWorth >= 0;
 
   const topCategories = expensesByCategory.slice(0, 5);
+  const maxAmount = topCategories.length > 0 ? topCategories[0].amount : 1;
 
   return (
     <div className="space-y-5">
-      {/* Net Worth — Large hero card */}
-      <div
-        className="rounded-xl p-6 relative overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #0f1e35 0%, #0d1929 50%, #0b1520 100%)",
-          border: "1px solid #1e2d45",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-        }}
-      >
-        {/* Background glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: isPositiveWorth
-              ? "radial-gradient(ellipse at 80% 20%, rgba(52,211,153,0.07) 0%, transparent 60%)"
-              : "radial-gradient(ellipse at 80% 20%, rgba(251,113,133,0.07) 0%, transparent 60%)",
-          }}
-        />
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
-            <Wallet className="w-4 h-4" style={{ color: "#4a6080" }} />
-            <span
-              className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
-            >
-              Total Net Worth
-            </span>
-          </div>
-          <div
-            className="text-4xl font-bold tracking-tight"
+      {/* Net Worth hero — text directly on dark gradient, no card */}
+      <div className="px-1 py-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Wallet className="w-4 h-4" style={{ color: "#64748b" }} />
+          <span
+            className="text-sm font-medium uppercase tracking-widest"
             style={{
-              fontFamily: "var(--font-display), Syne, sans-serif",
-              color: isPositiveWorth ? "#34d399" : "#fb7185",
-              letterSpacing: "-0.03em",
+              color: "#94a3b8",
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
             }}
           >
-            {isPositiveWorth ? "+" : ""}{formatCurrency(netWorth)}
-          </div>
-          <p className="text-sm mt-1" style={{ color: "#4a6080" }}>
-            Cash + Portfolio combined value
-          </p>
+            Total Net Worth
+          </span>
         </div>
+        <div
+          className="font-bold tracking-tight"
+          style={{
+            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+            color: "#f8fafc",
+            fontSize: "42px",
+            letterSpacing: "-0.03em",
+            lineHeight: 1.1,
+          }}
+        >
+          {isPositiveWorth ? "" : "−"}{formatCurrency(Math.abs(netWorth))}
+        </div>
+        <p className="text-sm mt-1.5" style={{ color: "#64748b" }}>
+          Cash + Portfolio combined value
+        </p>
       </div>
 
-      {/* 3-column metric row */}
+      {/* 3-column metric row — dark surface cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Net Income */}
+        {/* Net Cash */}
         <div
-          className="rounded-xl p-5 relative overflow-hidden"
+          className="rounded-2xl p-5"
           style={{
-            backgroundColor: "#111827",
-            border: "1px solid #1e2d45",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
-          }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: isPositiveNet
-                ? "radial-gradient(ellipse at 100% 0%, rgba(52,211,153,0.06) 0%, transparent 60%)"
-                : "radial-gradient(ellipse at 100% 0%, rgba(251,113,133,0.06) 0%, transparent 60%)",
-            }}
-          />
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <span
-                className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
-              >
-                Net Cash
-              </span>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{
-                  backgroundColor: isPositiveNet
-                    ? "rgba(52,211,153,0.12)"
-                    : "rgba(251,113,133,0.12)",
-                }}
-              >
-                {isPositiveNet ? (
-                  <TrendingUp className="w-3.5 h-3.5" style={{ color: "#34d399" }} />
-                ) : (
-                  <TrendingDown className="w-3.5 h-3.5" style={{ color: "#fb7185" }} />
-                )}
-              </div>
-            </div>
-            <div
-              className="text-2xl font-bold"
-              style={{
-                fontFamily: "var(--font-display), Syne, sans-serif",
-                color: isPositiveNet ? "#34d399" : "#fb7185",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {isPositiveNet ? "+" : ""}{formatCurrency(netIncome)}
-            </div>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="text-xs" style={{ color: "#4a6080" }}>
-                +{formatCurrency(totalIncome)} in
-              </span>
-              <span className="text-xs" style={{ color: "#4a6080" }}>
-                -{formatCurrency(totalExpenses)} out
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Portfolio Value */}
-        <div
-          className="rounded-xl p-5 relative overflow-hidden"
-          style={{
-            backgroundColor: "#111827",
-            border: "1px solid #1e2d45",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
-          }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: "radial-gradient(ellipse at 100% 0%, rgba(56,189,248,0.06) 0%, transparent 60%)",
-            }}
-          />
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <span
-                className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
-              >
-                Portfolio
-              </span>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: "rgba(56,189,248,0.12)" }}
-              >
-                <BarChart3 className="w-3.5 h-3.5" style={{ color: "#38bdf8" }} />
-              </div>
-            </div>
-            <div
-              className="text-2xl font-bold"
-              style={{
-                fontFamily: "var(--font-display), Syne, sans-serif",
-                color: "#38bdf8",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {formatCurrency(portfolioValue)}
-            </div>
-            <p className="text-xs mt-2" style={{ color: "#4a6080" }}>
-              Market value (live prices)
-            </p>
-          </div>
-        </div>
-
-        {/* Spending rate */}
-        <div
-          className="rounded-xl p-5"
-          style={{
-            backgroundColor: "#111827",
-            border: "1px solid #1e2d45",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+            backgroundColor: "#1e293b",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
           }}
         >
           <div className="flex items-center justify-between mb-3">
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+              style={{
+                color: "#64748b",
+                fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+              }}
+            >
+              Net Cash
+            </span>
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{
+                backgroundColor: isPositiveNet
+                  ? "rgba(52,211,153,0.15)"
+                  : "rgba(251,113,133,0.15)",
+              }}
+            >
+              {isPositiveNet ? (
+                <TrendingUp className="w-3.5 h-3.5" style={{ color: "#34d399" }} />
+              ) : (
+                <TrendingDown className="w-3.5 h-3.5" style={{ color: "#fb7185" }} />
+              )}
+            </div>
+          </div>
+          <div
+            className="text-2xl font-bold"
+            style={{
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+              color: isPositiveNet ? "#34d399" : "#fb7185",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {isPositiveNet ? "+" : ""}{formatCurrency(netIncome)}
+          </div>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="text-xs" style={{ color: "#64748b" }}>
+              +{formatCurrency(totalIncome)} in
+            </span>
+            <span className="text-xs" style={{ color: "#64748b" }}>
+              −{formatCurrency(totalExpenses)} out
+            </span>
+          </div>
+        </div>
+
+        {/* Portfolio Value */}
+        <div
+          className="rounded-2xl p-5"
+          style={{
+            backgroundColor: "#1e293b",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span
+              className="text-xs font-semibold uppercase tracking-widest"
+              style={{
+                color: "#64748b",
+                fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+              }}
+            >
+              Portfolio
+            </span>
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: "rgba(37,99,235,0.15)" }}
+            >
+              <BarChart3 className="w-3.5 h-3.5" style={{ color: "#60a5fa" }} />
+            </div>
+          </div>
+          <div
+            className="text-2xl font-bold"
+            style={{
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+              color: "#60a5fa",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {formatCurrency(portfolioValue)}
+          </div>
+          <p className="text-xs mt-2" style={{ color: "#64748b" }}>
+            Market value (live prices)
+          </p>
+        </div>
+
+        {/* Savings Rate */}
+        <div
+          className="rounded-2xl p-5"
+          style={{
+            backgroundColor: "#1e293b",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span
+              className="text-xs font-semibold uppercase tracking-widest"
+              style={{
+                color: "#64748b",
+                fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+              }}
             >
               Savings Rate
             </span>
@@ -218,7 +215,7 @@ export default function DashboardSummary({
               <div
                 className="text-2xl font-bold"
                 style={{
-                  fontFamily: "var(--font-display), Syne, sans-serif",
+                  fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
                   color: netIncome >= 0 ? "#34d399" : "#fb7185",
                   letterSpacing: "-0.02em",
                 }}
@@ -227,89 +224,91 @@ export default function DashboardSummary({
               </div>
               <div
                 className="mt-3 rounded-full overflow-hidden"
-                style={{ backgroundColor: "#0b0f1a", height: "6px" }}
+                style={{ height: "6px", backgroundColor: "#334155" }}
               >
                 <div
                   className="h-full rounded-full transition-all duration-700"
                   style={{
                     width: `${Math.max(0, Math.min(100, ((totalIncome - totalExpenses) / totalIncome) * 100))}%`,
-                    background: "linear-gradient(90deg, #34d399, #38bdf8)",
+                    background: "linear-gradient(90deg, #34d399, #2563eb)",
                   }}
                 />
               </div>
             </>
           ) : (
-            <p className="text-sm" style={{ color: "#4a6080" }}>No income data</p>
+            <p className="text-sm" style={{ color: "#64748b" }}>No income data</p>
           )}
         </div>
       </div>
 
-      {/* Expense breakdown */}
+      {/* Expense breakdown — bar chart on dark background */}
       {topCategories.length > 0 && (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{
-            backgroundColor: "#111827",
-            border: "1px solid #1e2d45",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
-          }}
-        >
-          <div
-            className="px-5 py-4"
-            style={{ borderBottom: "1px solid #1e2d45" }}
+        <div>
+          {/* Section label */}
+          <p
+            className="text-xs font-semibold uppercase tracking-widest mb-4 px-1"
+            style={{
+              color: "#94a3b8",
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+            }}
           >
-            <h3
-              className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
-            >
-              Expense Breakdown
-            </h3>
-          </div>
-          <div className="p-5 space-y-4">
-            {topCategories.map((cat) => (
-              <div key={cat.category} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: getCategoryColor(cat.category) }}
-                    />
-                    <span className="text-sm font-medium" style={{ color: "#8ba4c0" }}>
-                      {cat.category}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs" style={{ color: "#4a6080" }}>
-                      {cat.percentage.toFixed(1)}%
-                    </span>
-                    <span
-                      className="text-sm font-medium tabular-nums"
-                      style={{
-                        color: "#fb7185",
-                        fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                        minWidth: "80px",
-                        textAlign: "right",
-                      }}
-                    >
-                      {formatCurrency(cat.amount)}
-                    </span>
-                  </div>
-                </div>
+            Expense Breakdown
+          </p>
+
+          {/* Bar chart — flex row of rounded columns */}
+          <div className="flex items-end gap-3 h-28 mb-3 px-1">
+            {topCategories.map((cat, index) => {
+              const heightPct = maxAmount > 0 ? (cat.amount / maxAmount) * 100 : 0;
+              const barColor = getCategoryBarColor(cat.category, index);
+              return (
                 <div
-                  className="rounded-full overflow-hidden"
-                  style={{ backgroundColor: "#0b0f1a", height: "4px" }}
+                  key={cat.category}
+                  className="flex-1 flex flex-col items-center gap-1.5"
                 >
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      width: `${cat.percentage}%`,
-                      backgroundColor: getCategoryColor(cat.category),
-                      opacity: 0.75,
-                    }}
-                  />
+                  <div className="w-full flex items-end" style={{ height: "80px" }}>
+                    <div
+                      className="w-full rounded-t-xl rounded-b-sm transition-all duration-700"
+                      style={{
+                        height: `${Math.max(8, heightPct)}%`,
+                        backgroundColor: barColor,
+                        opacity: 0.85,
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+
+          {/* Labels below bars */}
+          <div className="flex gap-3 px-1">
+            {topCategories.map((cat, index) => {
+              const badge = getCategoryBadge(cat.category);
+              return (
+                <div key={cat.category} className="flex-1 flex flex-col items-center gap-1">
+                  <span
+                    className="text-xs font-medium px-2 py-0.5 rounded-full truncate w-full text-center"
+                    style={{
+                      backgroundColor: badge.bg,
+                      color: badge.text,
+                      fontSize: "10px",
+                    }}
+                  >
+                    {cat.category}
+                  </span>
+                  <span
+                    className="text-xs font-semibold tabular-nums"
+                    style={{
+                      color: "#94a3b8",
+                      fontFamily: "var(--font-mono), 'DM Mono', monospace",
+                      fontSize: "11px",
+                    }}
+                  >
+                    {formatCurrency(cat.amount)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -23,7 +23,10 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           <label
             htmlFor={selectId}
             className="text-xs font-medium uppercase tracking-widest"
-            style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+            style={{
+              color: "#94a3b8",
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+            }}
           >
             {label}
           </label>
@@ -33,28 +36,29 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              "w-full rounded-lg px-3.5 py-2.5 text-sm appearance-none cursor-pointer transition-all duration-200",
+              "w-full rounded-xl px-3.5 py-2.5 text-sm appearance-none cursor-pointer transition-all duration-200",
+              "border text-slate-100",
               "focus:outline-none",
+              error ? "border-rose-500" : "border-slate-700",
               className
             )}
             style={{
-              backgroundColor: "#111827",
-              color: "#f0f4ff",
-              border: error ? "1px solid rgba(251, 113, 133, 0.5)" : "1px solid #1e2d45",
-              boxShadow: "inset 0 1px 2px rgba(0,0,0,0.3)",
+              backgroundColor: "#0f172a",
+              boxShadow: error
+                ? "0 0 0 3px rgba(251,113,133,0.15)"
+                : "none",
               paddingRight: "2.5rem",
             }}
             onFocus={(e) => {
-              e.currentTarget.style.border = "1px solid rgba(56, 189, 248, 0.4)";
-              e.currentTarget.style.boxShadow =
-                "inset 0 1px 2px rgba(0,0,0,0.3), 0 0 0 3px rgba(56, 189, 248, 0.06)";
+              e.currentTarget.style.borderColor = "#3b82f6";
+              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37,99,235,0.2)";
               props.onFocus?.(e);
             }}
             onBlur={(e) => {
-              e.currentTarget.style.border = error
-                ? "1px solid rgba(251, 113, 133, 0.5)"
-                : "1px solid #1e2d45";
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.3)";
+              e.currentTarget.style.borderColor = error ? "#f43f5e" : "#334155";
+              e.currentTarget.style.boxShadow = error
+                ? "0 0 0 3px rgba(251,113,133,0.15)"
+                : "none";
               props.onBlur?.(e);
             }}
             {...props}
@@ -63,7 +67,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               <option
                 key={option.value}
                 value={option.value}
-                style={{ backgroundColor: "#111827", color: "#f0f4ff" }}
+                style={{ backgroundColor: "#1e293b", color: "#f8fafc" }}
               >
                 {option.label}
               </option>
@@ -71,13 +75,11 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </select>
           <ChevronDown
             className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-            style={{ color: "#4a6080" }}
+            style={{ color: "#64748b" }}
           />
         </div>
         {error && (
-          <p className="text-xs" style={{ color: "#fb7185" }}>
-            {error}
-          </p>
+          <p className="text-xs text-rose-400">{error}</p>
         )}
       </div>
     );

@@ -52,30 +52,30 @@ export default function TransactionForm() {
 
   return (
     <div
-      className="rounded-xl overflow-hidden"
+      className="rounded-2xl overflow-hidden"
       style={{
-        backgroundColor: "#111827",
-        border: "1px solid #1e2d45",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03)",
+        backgroundColor: "#1e293b",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
       }}
     >
       {/* Header */}
       <div
         className="px-5 py-4 flex items-center gap-3"
-        style={{ borderBottom: "1px solid #1e2d45" }}
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div
           className="w-7 h-7 rounded-lg flex items-center justify-center"
-          style={{
-            backgroundColor: "rgba(56, 189, 248, 0.12)",
-            border: "1px solid rgba(56, 189, 248, 0.2)",
-          }}
+          style={{ backgroundColor: "rgba(37,99,235,0.2)" }}
         >
-          <Plus className="w-4 h-4" style={{ color: "#38bdf8" }} />
+          <Plus className="w-4 h-4" style={{ color: "#60a5fa" }} />
         </div>
         <h2
-          className="text-sm font-semibold uppercase tracking-widest"
-          style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+          className="text-xs font-semibold uppercase tracking-widest"
+          style={{
+            color: "#64748b",
+            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+          }}
         >
           New Transaction
         </h2>
@@ -86,36 +86,34 @@ export default function TransactionForm() {
         <div className="flex flex-col gap-1.5">
           <span
             className="text-xs font-medium uppercase tracking-widest"
-            style={{ color: "#4a6080", fontFamily: "var(--font-display), Syne, sans-serif" }}
+            style={{
+              color: "#94a3b8",
+              fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+            }}
           >
             Type
           </span>
           <div
-            className="flex gap-2"
-            style={{
-              backgroundColor: "#0b0f1a",
-              padding: "4px",
-              borderRadius: "10px",
-              border: "1px solid #1e2d45",
-            }}
+            className="flex gap-2 p-1 rounded-full"
+            style={{ backgroundColor: "#0f172a" }}
           >
             <button
               type="button"
               onClick={() => setType("INCOME")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+                "flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer"
               )}
               style={
                 isIncome
                   ? {
-                      backgroundColor: "rgba(52, 211, 153, 0.14)",
+                      backgroundColor: "#1e293b",
                       color: "#34d399",
-                      border: "1px solid rgba(52, 211, 153, 0.25)",
-                      boxShadow: "0 0 12px rgba(52, 211, 153, 0.12)",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                      border: "1px solid rgba(52,211,153,0.2)",
                     }
                   : {
-                      color: "#4a6080",
-                      border: "1px solid transparent",
+                      color: "#64748b",
+                      backgroundColor: "transparent",
                     }
               }
             >
@@ -126,19 +124,19 @@ export default function TransactionForm() {
               type="button"
               onClick={() => setType("EXPENSE")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+                "flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer"
               )}
               style={
                 !isIncome
                   ? {
-                      backgroundColor: "rgba(251, 113, 133, 0.14)",
+                      backgroundColor: "#1e293b",
                       color: "#fb7185",
-                      border: "1px solid rgba(251, 113, 133, 0.25)",
-                      boxShadow: "0 0 12px rgba(251, 113, 133, 0.12)",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                      border: "1px solid rgba(251,113,133,0.2)",
                     }
                   : {
-                      color: "#4a6080",
-                      border: "1px solid transparent",
+                      color: "#64748b",
+                      backgroundColor: "transparent",
                     }
               }
             >
@@ -187,23 +185,23 @@ export default function TransactionForm() {
 
         <Button
           type="submit"
-          variant={isIncome ? "success" : "danger"}
+          variant="primary"
           size="md"
           disabled={isPending}
           className="w-full"
           style={
             isIncome
               ? {
-                  background: "linear-gradient(135deg, rgba(52,211,153,0.9) 0%, rgba(16,185,129,0.9) 100%)",
+                  background: "linear-gradient(135deg, #34d399 0%, #059669 100%)",
                   color: "#ffffff",
-                  border: "1px solid rgba(52,211,153,0.3)",
-                  boxShadow: "0 0 20px rgba(52,211,153,0.2)",
+                  border: "none",
+                  boxShadow: "0 4px 16px rgba(52,211,153,0.3)",
                 }
               : {
-                  background: "linear-gradient(135deg, rgba(251,113,133,0.9) 0%, rgba(244,63,94,0.9) 100%)",
+                  background: "linear-gradient(135deg, #fb7185 0%, #e11d48 100%)",
                   color: "#ffffff",
-                  border: "1px solid rgba(251,113,133,0.3)",
-                  boxShadow: "0 0 20px rgba(251,113,133,0.2)",
+                  border: "none",
+                  boxShadow: "0 4px 16px rgba(251,113,133,0.3)",
                 }
           }
         >
