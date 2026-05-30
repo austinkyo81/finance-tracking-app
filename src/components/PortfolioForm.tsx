@@ -2,9 +2,7 @@
 
 import { useTransition, useRef } from "react";
 import { addStockAsset } from "@/app/portfolio/actions";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { Plus, Loader2, TrendingUp } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 export default function PortfolioForm() {
   const [isPending, startTransition] = useTransition();
@@ -13,7 +11,6 @@ export default function PortfolioForm() {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
     startTransition(async () => {
       await addStockAsset({
         ticker: (formData.get("ticker") as string).toUpperCase(),
@@ -23,42 +20,30 @@ export default function PortfolioForm() {
     });
   }
 
+  const inputClass =
+    "w-full rounded-xl border border-slate-200 bg-white text-sm text-slate-800 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-200 placeholder:text-slate-400";
+
   return (
     <div
-      className="rounded-2xl overflow-hidden"
+      className="rounded-2xl p-4"
       style={{
-        backgroundColor: "#1e293b",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+        backgroundColor: "#f8fafc",
+        border: "1px solid rgba(226,232,240,0.8)",
       }}
     >
-      {/* Header */}
-      <div
-        className="px-5 py-4 flex items-center gap-3"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+      <p
+        className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3"
+        style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}
       >
-        <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: "rgba(37,99,235,0.2)" }}
-        >
-          <TrendingUp className="w-4 h-4" style={{ color: "#60a5fa" }} />
-        </div>
-        <h2
-          className="text-xs font-semibold uppercase tracking-widest"
-          style={{
-            color: "#64748b",
-            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-          }}
-        >
-          Add Position
-        </h2>
-      </div>
-
-      <form ref={formRef} onSubmit={handleSubmit} className="p-5">
-        <div className="flex gap-3 items-end">
+        Add Position
+      </p>
+      <form ref={formRef} onSubmit={handleSubmit}>
+        <div className="flex gap-2 items-end">
           <div className="flex-1">
-            <Input
-              label="Ticker Symbol"
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              Ticker
+            </label>
+            <input
               name="ticker"
               type="text"
               placeholder="AAPL"
@@ -67,51 +52,44 @@ export default function PortfolioForm() {
               onChange={(e) => {
                 e.currentTarget.value = e.currentTarget.value.toUpperCase();
               }}
+              className={inputClass}
               style={{
                 fontFamily: "var(--font-mono), 'DM Mono', monospace",
                 letterSpacing: "0.05em",
-                fontWeight: 500,
+                fontWeight: 600,
               }}
             />
           </div>
-          <div className="w-36">
-            <Input
-              label="Shares"
+          <div className="w-28">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              Shares
+            </label>
+            <input
               name="shares"
               type="number"
               step="0.0001"
               min="0.0001"
               placeholder="0"
               required
+              className={inputClass}
             />
           </div>
-          <Button
+          <button
             type="submit"
-            variant="primary"
-            size="md"
             disabled={isPending}
-            className="shrink-0"
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all duration-200 cursor-pointer disabled:opacity-60"
             style={{
-              paddingTop: "10px",
-              paddingBottom: "10px",
-              background: "linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)",
-              color: "#ffffff",
-              border: "none",
-              boxShadow: "0 4px 16px rgba(37,99,235,0.35)",
+              backgroundColor: "#1a4b9f",
+              boxShadow: "0 4px 16px rgba(26,75,159,0.25)",
             }}
           >
             {isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Adding...
-              </>
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <>
-                <Plus className="w-4 h-4" />
-                Add
-              </>
+              <Plus className="w-4 h-4" />
             )}
-          </Button>
+            {isPending ? "..." : "Add"}
+          </button>
         </div>
       </form>
     </div>

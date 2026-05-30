@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { getTransactions } from "@/app/transactions/actions";
 import TransactionForm from "@/components/TransactionForm";
 import TransactionList from "@/components/TransactionList";
+import { formatCurrency } from "@/lib/utils";
 
 export default async function TransactionsPage() {
   const transactions = await getTransactions();
@@ -16,94 +17,86 @@ export default async function TransactionsPage() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Page title */}
-      <div className="mb-6 px-1">
+    <div className="flex-1 flex flex-col space-y-5">
+      {/* Header */}
+      <div>
         <h1
-          className="text-3xl font-bold tracking-tight"
-          style={{
-            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-            letterSpacing: "-0.02em",
-            color: "#f8fafc",
-          }}
+          className="text-2xl font-bold tracking-tight text-white"
+          style={{ letterSpacing: "-0.02em" }}
         >
-          Transactions
+          Ledger Stream
         </h1>
-        <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>
-          {transactions.length} total &nbsp;&middot;&nbsp;{" "}
-          {transactions.filter((t) => t.type === "INCOME").length} income &nbsp;&middot;&nbsp;{" "}
-          {transactions.filter((t) => t.type === "EXPENSE").length} expenses
+        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
+          Manage cash operations records
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Form + quick stats — left column */}
-        <div className="space-y-4">
-          <TransactionForm />
-
-          {/* Quick stats — dark tinted cards */}
-          <div className="grid grid-cols-2 gap-3">
-            <div
-              className="rounded-2xl p-4"
-              style={{
-                backgroundColor: "rgba(6,78,59,0.3)",
-                border: "1px solid rgba(52,211,153,0.2)",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-              }}
-            >
-              <p
-                className="text-xs uppercase tracking-widest mb-1"
-                style={{
-                  color: "#6ee7b7",
-                  fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-                }}
-              >
-                Income
-              </p>
-              <p
-                className="text-lg font-bold tabular-nums"
-                style={{
-                  color: "#34d399",
-                  fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                }}
-              >
-                +${totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <div
-              className="rounded-2xl p-4"
-              style={{
-                backgroundColor: "rgba(76,5,25,0.3)",
-                border: "1px solid rgba(251,113,133,0.2)",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-              }}
-            >
-              <p
-                className="text-xs uppercase tracking-widest mb-1"
-                style={{
-                  color: "#fda4af",
-                  fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-                }}
-              >
-                Expenses
-              </p>
-              <p
-                className="text-lg font-bold tabular-nums"
-                style={{
-                  color: "#fb7185",
-                  fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                }}
-              >
-                −${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
+      {/* 2-col stat cards on gradient */}
+      <div className="grid grid-cols-2 gap-3">
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: "rgba(255,255,255,0.10)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest mb-1"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+          >
+            Income
+          </p>
+          <p
+            className="text-lg font-bold text-white"
+            style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
+          >
+            +{formatCurrency(totalIncome)}
+          </p>
         </div>
-
-        {/* Transaction list — right columns */}
-        <div className="lg:col-span-2">
-          <TransactionList transactions={transactions} />
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: "rgba(255,255,255,0.10)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest mb-1"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+          >
+            Expenses
+          </p>
+          <p
+            className="text-lg font-bold text-white"
+            style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
+          >
+            −{formatCurrency(totalExpenses)}
+          </p>
         </div>
+      </div>
+
+      {/* Transaction form — white card floating on gradient */}
+      <TransactionForm />
+
+      {/* White sliding sheet — transaction ledger */}
+      <div
+        className="bg-white -mx-4 flex-1 px-5 pt-6 pb-32"
+        style={{
+          borderRadius: "2.5rem 2.5rem 0 0",
+          boxShadow: "0 -8px 40px rgba(26,75,159,0.12)",
+        }}
+      >
+        <h2
+          className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4"
+          style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}
+        >
+          Transactions Records Log
+        </h2>
+        <TransactionList transactions={transactions} />
       </div>
     </div>
   );

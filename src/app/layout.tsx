@@ -22,16 +22,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${ibmPlexSans.variable} ${dmMono.variable} h-full`}
-    >
-      <body className="min-h-screen flex flex-col" style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}>
-        <main className="flex-1 pb-28">
+    <html lang="en" className={`${ibmPlexSans.variable} ${dmMono.variable} h-full`}>
+      <body
+        className="min-h-screen antialiased selection:bg-teal-500/30"
+        style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}
+      >
+        <main className="max-w-md mx-auto min-h-screen relative flex flex-col px-4 pt-8 text-white">
           {children}
         </main>
         <NavBar />

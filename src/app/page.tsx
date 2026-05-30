@@ -2,24 +2,24 @@ export const dynamic = "force-dynamic";
 
 import { getTransactions } from "@/app/transactions/actions";
 import { getStockAssets } from "@/app/portfolio/actions";
-import DashboardSummary from "@/components/DashboardSummary";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Wallet, BarChart3, Landmark } from "lucide-react";
 import TransactionDeleteButton from "@/app/transactions/TransactionDeleteButton";
 
-const CATEGORY_BADGE: Record<string, { bg: string; text: string }> = {
-  Rent:          { bg: "rgba(96,165,250,0.12)", text: "#93c5fd" },
-  Food:          { bg: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
-  Subscriptions: { bg: "rgba(167,139,250,0.12)", text: "#c4b5fd" },
-  Utilities:     { bg: "rgba(251,191,36,0.12)", text: "#fcd34d" },
-  Entertainment: { bg: "rgba(251,113,133,0.12)", text: "#fda4af" },
-  Salary:        { bg: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
-  Other:         { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" },
+const CATEGORY_BAR_COLORS: Record<string, string> = {
+  Rent:          "#1a4b9f",
+  Food:          "#3de3b2",
+  Subscriptions: "#a78bfa",
+  Utilities:     "#fbbf24",
+  Entertainment: "#fb7185",
+  Salary:        "#3de3b2",
+  Other:         "#94a3b8",
 };
+const CYCLING_COLORS = ["#1a4b9f", "#3de3b2", "#a78bfa", "#fbbf24", "#fb7185"];
 
-function getCategoryBadge(category: string) {
-  return CATEGORY_BADGE[category] ?? { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" };
+function getCategoryBarColor(category: string, index: number): string {
+  return CATEGORY_BAR_COLORS[category] ?? CYCLING_COLORS[index % CYCLING_COLORS.length];
 }
 
 export default async function DashboardPage() {
@@ -37,6 +37,8 @@ export default async function DashboardPage() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const portfolioValue = assets.reduce((sum, a) => sum + a.shares * a.lastPrice, 0);
+  const netCash = totalIncome - totalExpenses;
+  const netWorth = netCash + portfolioValue;
 
   const expenseMap = new Map<string, number>();
   transactions
@@ -51,247 +53,349 @@ export default async function DashboardPage() {
       amount,
       percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
     }))
-    .sort((a, b) => b.amount - a.amount);
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
 
   const recentTransactions = [...transactions]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
 
+  const today = new Date();
+  const dateStr = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  const savingsRate =
+    totalIncome > 0
+      ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100)
+      : null;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Page title */}
-      <div className="mb-6 px-1">
+    <div className="flex-1 flex flex-col">
+      {/* ── Greeting ── */}
+      <div className="mb-6">
         <h1
-          className="text-3xl font-bold tracking-tight"
-          style={{
-            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-            letterSpacing: "-0.02em",
-            color: "#f8fafc",
-          }}
+          className="text-2xl font-bold tracking-tight text-white"
+          style={{ letterSpacing: "-0.02em" }}
         >
-          Dashboard
+          Hello, Investor
         </h1>
-        <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>
-          Financial overview &amp; portfolio summary
+        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
+          You&apos;re on track to financial freedom
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Summary cards + breakdown — left 2 cols */}
-        <div className="lg:col-span-2">
-          <DashboardSummary
-            totalIncome={totalIncome}
-            totalExpenses={totalExpenses}
-            portfolioValue={portfolioValue}
-            expensesByCategory={expensesByCategory}
-          />
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-4">
-          {/* Recent Activity — dark card */}
+      {/* ── Circular net worth indicator ── */}
+      <div className="flex justify-center my-4">
+        <div
+          className="w-56 h-56 rounded-full flex flex-col items-center justify-center relative glow-teal"
+          style={{
+            border: "4px solid rgba(61,227,178,0.35)",
+            background: "rgba(255,255,255,0.07)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
+          }}
+        >
           <div
-            className="rounded-2xl overflow-hidden"
+            className="absolute inset-2 rounded-full pointer-events-none"
+            style={{ border: "1px solid rgba(255,255,255,0.07)" }}
+          />
+          <Landmark className="w-5 h-5 mb-2" style={{ color: "#3de3b2" }} />
+          <span
+            className="text-3xl font-extrabold text-white leading-none"
             style={{
-              backgroundColor: "#1e293b",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+              fontFamily: "var(--font-mono), 'DM Mono', monospace",
+              letterSpacing: "-0.03em",
             }}
           >
-            <div
-              className="flex items-center justify-between px-5 py-4"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <h2
-                className="text-xs font-semibold uppercase tracking-widest"
+            {formatCurrency(Math.abs(netWorth))}
+          </span>
+          <span
+            className="text-[10px] font-bold uppercase tracking-widest mt-1.5"
+            style={{ color: "#3de3b2" }}
+          >
+            Net Worth Level
+          </span>
+          <div className="flex gap-1.5 mt-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-white opacity-30" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white opacity-30" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Two-column sub-cards ── */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: "rgba(255,255,255,0.10)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Cash Flow
+            </span>
+            <Wallet className="w-4 h-4" style={{ color: "rgba(255,255,255,0.45)" }} />
+          </div>
+          <p
+            className="text-lg font-bold text-white"
+            style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace", letterSpacing: "-0.02em" }}
+          >
+            {netCash >= 0 ? "+" : "−"}{formatCurrency(Math.abs(netCash))}
+          </p>
+        </div>
+
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: "rgba(255,255,255,0.10)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Portfolio
+            </span>
+            <BarChart3 className="w-4 h-4" style={{ color: "#3de3b2" }} />
+          </div>
+          <p
+            className="text-lg font-bold text-white"
+            style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace", letterSpacing: "-0.02em" }}
+          >
+            {formatCurrency(portfolioValue)}
+          </p>
+        </div>
+      </div>
+
+      {/* ── White sliding bottom sheet ── */}
+      <div
+        className="bg-white -mx-4 flex-1 px-5 pt-6 pb-32"
+        style={{
+          borderRadius: "2.5rem 2.5rem 0 0",
+          boxShadow: "0 -12px 48px rgba(26,75,159,0.12)",
+        }}
+      >
+        {/* Sheet header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Recent Activity
+            </h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">{dateStr}</p>
+          </div>
+          <Link
+            href="/transactions"
+            className="flex items-center gap-1 text-xs font-semibold transition-colors duration-150 cursor-pointer"
+            style={{ color: "#1a4b9f" }}
+          >
+            View all
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* Transaction rows */}
+        <div className="space-y-2 mb-6">
+          {recentTransactions.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-6">No transactions yet</p>
+          ) : (
+            recentTransactions.map((tx) => {
+              const isIncome = tx.type === "INCOME";
+              return (
+                <div
+                  key={tx.id}
+                  className="flex items-center gap-3 p-3.5 rounded-2xl group cursor-pointer transition-colors duration-150 hover:bg-slate-100"
+                  style={{ backgroundColor: "#f8fafc" }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                    style={{
+                      backgroundColor: isIncome
+                        ? "rgba(61,227,178,0.12)"
+                        : "rgba(251,113,133,0.10)",
+                    }}
+                  >
+                    {isIncome ? (
+                      <TrendingUp className="w-4 h-4" style={{ color: "#10b981" }} />
+                    ) : (
+                      <TrendingDown className="w-4 h-4" style={{ color: "#fb7185" }} />
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 leading-tight truncate">
+                      {tx.description ?? tx.category}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {tx.category} · {formatDate(tx.date)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className="text-sm font-bold tabular-nums"
+                      style={{
+                        color: isIncome ? "#10b981" : "#64748b",
+                        fontFamily: "var(--font-mono), 'DM Mono', monospace",
+                      }}
+                    >
+                      {isIncome ? "+" : "−"}{formatCurrency(tx.amount)}
+                    </span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <TransactionDeleteButton id={tx.id} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Expense allocation bars */}
+        {expensesByCategory.length > 0 && (
+          <div className="space-y-3 mb-5">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Expense Allocation
+            </h3>
+            <div className="space-y-3">
+              {expensesByCategory.map((cat, idx) => {
+                const barColor = getCategoryBarColor(cat.category, idx);
+                return (
+                  <div key={cat.category}>
+                    <div className="flex justify-between text-xs font-medium mb-1.5">
+                      <span className="text-slate-700">{cat.category}</span>
+                      <span
+                        className="text-slate-500 tabular-nums"
+                        style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
+                      >
+                        {cat.percentage.toFixed(0)}% · {formatCurrency(cat.amount)}
+                      </span>
+                    </div>
+                    <div
+                      className="w-full rounded-full overflow-hidden"
+                      style={{ height: "6px", backgroundColor: "#e2e8f0" }}
+                    >
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{ width: `${cat.percentage}%`, backgroundColor: barColor }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Savings rate */}
+        {savingsRate !== null && (
+          <div
+            className="rounded-2xl p-4 mb-5"
+            style={{ backgroundColor: "#eff6ff", border: "1px solid rgba(26,75,159,0.08)" }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                Savings Rate
+              </span>
+              <span
+                className="text-sm font-bold tabular-nums"
                 style={{
-                  color: "#64748b",
-                  fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+                  color: savingsRate >= 0 ? "#10b981" : "#fb7185",
+                  fontFamily: "var(--font-mono), 'DM Mono', monospace",
                 }}
               >
-                Recent Activity
-              </h2>
+                {savingsRate}%
+              </span>
+            </div>
+            <div
+              className="w-full rounded-full overflow-hidden"
+              style={{ height: "6px", backgroundColor: "#dbeafe" }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.max(0, Math.min(100, savingsRate))}%`,
+                  background: "linear-gradient(90deg, #1a4b9f, #3de3b2)",
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Holdings quick view */}
+        {assets.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Holdings
+              </h3>
               <Link
-                href="/transactions"
-                className="flex items-center gap-1 text-xs font-medium transition-colors duration-150"
-                style={{ color: "#60a5fa" }}
+                href="/portfolio"
+                className="flex items-center gap-1 text-xs font-semibold cursor-pointer transition-colors duration-150"
+                style={{ color: "#1a4b9f" }}
               >
                 View all
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-
-            {recentTransactions.length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <p className="text-sm" style={{ color: "#64748b" }}>No transactions yet</p>
-              </div>
-            ) : (
-              <div>
-                {recentTransactions.map((tx, idx) => {
-                  const isIncome = tx.type === "INCOME";
-                  const badge = getCategoryBadge(tx.category);
-                  const isLast = idx === recentTransactions.length - 1;
-
-                  return (
+            <div className="space-y-2">
+              {assets.slice(0, 3).map((asset) => {
+                const value = asset.shares * asset.lastPrice;
+                const pct = portfolioValue > 0 ? (value / portfolioValue) * 100 : 0;
+                return (
+                  <div
+                    key={asset.id}
+                    className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors duration-150 hover:bg-slate-100"
+                    style={{ backgroundColor: "#f8fafc" }}
+                  >
                     <div
-                      key={tx.id}
-                      className="flex items-center gap-3 px-5 py-3 transition-colors duration-150 group cursor-pointer hover:bg-slate-700/40"
-                      style={{
-                        borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)",
-                      }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: "linear-gradient(135deg, #1a4b9f, #2563eb)" }}
                     >
-                      {/* Icon */}
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      <span
+                        className="text-xs font-bold text-white"
+                        style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
+                      >
+                        {asset.ticker.charAt(0)}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-xs font-bold text-slate-800"
                         style={{
-                          backgroundColor: isIncome
-                            ? "rgba(52,211,153,0.15)"
-                            : "rgba(251,113,133,0.15)",
+                          fontFamily: "var(--font-mono), 'DM Mono', monospace",
+                          letterSpacing: "0.04em",
                         }}
                       >
-                        {isIncome ? (
-                          <TrendingUp className="w-3.5 h-3.5" style={{ color: "#34d399" }} />
-                        ) : (
-                          <TrendingDown className="w-3.5 h-3.5" style={{ color: "#fb7185" }} />
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div>
-                          <span
-                            className="text-xs px-2 py-0.5 rounded-full font-medium"
-                            style={{
-                              backgroundColor: badge.bg,
-                              color: badge.text,
-                            }}
-                          >
-                            {tx.category}
-                          </span>
-                        </div>
-                        <p className="text-xs mt-0.5 truncate" style={{ color: "#475569" }}>
-                          {tx.description ?? formatDate(tx.date)}
-                        </p>
-                      </div>
-
-                      {/* Amount */}
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-xs font-semibold tabular-nums"
-                          style={{
-                            color: isIncome ? "#34d399" : "#fb7185",
-                            fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                          }}
-                        >
-                          {isIncome ? "+" : "−"}{formatCurrency(tx.amount)}
-                        </span>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <TransactionDeleteButton id={tx.id} />
-                        </div>
-                      </div>
+                        {asset.ticker}
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        {asset.shares.toLocaleString()} shares
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Portfolio quick view — dark card */}
-          {assets.length > 0 && (
-            <div
-              className="rounded-2xl overflow-hidden"
-              style={{
-                backgroundColor: "#1e293b",
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-              }}
-            >
-              <div
-                className="flex items-center justify-between px-5 py-4"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                <h2
-                  className="text-xs font-semibold uppercase tracking-widest"
-                  style={{
-                    color: "#64748b",
-                    fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-                  }}
-                >
-                  Holdings
-                </h2>
-                <Link
-                  href="/portfolio"
-                  className="flex items-center gap-1 text-xs font-medium transition-colors duration-150"
-                  style={{ color: "#60a5fa" }}
-                >
-                  View all
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-              <div>
-                {assets.slice(0, 4).map((asset, idx) => {
-                  const value = asset.shares * asset.lastPrice;
-                  const isLast = idx === Math.min(assets.length, 4) - 1;
-                  const pct = portfolioValue > 0 ? (value / portfolioValue) * 100 : 0;
-
-                  return (
-                    <div
-                      key={asset.id}
-                      className="flex items-center gap-3 px-5 py-3 transition-colors duration-150 cursor-pointer hover:bg-slate-700/40"
-                      style={{
-                        borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)",
-                      }}
-                    >
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: "rgba(37,99,235,0.2)" }}
+                    <div className="text-right">
+                      <p
+                        className="text-xs font-semibold text-slate-800 tabular-nums"
+                        style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
                       >
-                        <span
-                          className="text-xs font-bold"
-                          style={{
-                            color: "#60a5fa",
-                            fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                          }}
-                        >
-                          {asset.ticker.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className="text-xs font-semibold"
-                          style={{
-                            color: "#f8fafc",
-                            fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          {asset.ticker}
-                        </p>
-                        <p className="text-xs" style={{ color: "#64748b" }}>
-                          {asset.shares.toLocaleString()} shares
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p
-                          className="text-xs font-semibold tabular-nums"
-                          style={{
-                            color: "#60a5fa",
-                            fontFamily: "var(--font-mono), 'DM Mono', monospace",
-                          }}
-                        >
-                          {formatCurrency(value)}
-                        </p>
-                        <p className="text-xs" style={{ color: "#64748b" }}>
-                          {pct.toFixed(1)}%
-                        </p>
-                      </div>
+                        {formatCurrency(value)}
+                      </p>
+                      <p className="text-[11px] text-slate-400">{pct.toFixed(1)}%</p>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

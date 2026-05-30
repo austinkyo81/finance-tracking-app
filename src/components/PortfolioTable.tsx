@@ -16,26 +16,15 @@ interface PortfolioTableProps {
 export default function PortfolioTable({ assets }: PortfolioTableProps) {
   if (assets.length === 0) {
     return (
-      <div
-        className="rounded-2xl flex flex-col items-center justify-center py-16"
-        style={{
-          backgroundColor: "#1e293b",
-          border: "1px solid rgba(255,255,255,0.08)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-        }}
-      >
+      <div className="flex flex-col items-center justify-center py-12">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
-          style={{ backgroundColor: "rgba(37,99,235,0.15)" }}
+          style={{ backgroundColor: "#eff6ff" }}
         >
-          <span className="text-lg font-bold" style={{ color: "#60a5fa" }}>$</span>
+          <span className="text-lg font-bold" style={{ color: "#1a4b9f" }}>$</span>
         </div>
-        <p className="text-sm font-medium" style={{ color: "#94a3b8" }}>
-          No positions yet
-        </p>
-        <p className="text-xs mt-1" style={{ color: "#64748b" }}>
-          Add your first stock position above
-        </p>
+        <p className="text-sm font-medium text-slate-500">No positions yet</p>
+        <p className="text-xs mt-1 text-slate-400">Add your first stock position above</p>
       </div>
     );
   }
@@ -43,31 +32,16 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
   const grandTotal = assets.reduce((sum, a) => sum + a.shares * a.lastPrice, 0);
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        backgroundColor: "#1e293b",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-      }}
-    >
-      {/* Table header */}
-      <div
-        className="grid px-5 py-3"
-        style={{
-          gridTemplateColumns: "1fr 1fr 1fr 1fr 44px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          backgroundColor: "rgba(15,23,42,0.5)",
-        }}
-      >
-        {["Ticker", "Shares", "Last Price", "Total Value", ""].map((col) => (
+    <div className="space-y-2">
+      {/* Column labels */}
+      <div className="grid px-3 pb-1" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr 36px" }}>
+        {["Ticker", "Shares", "Price", "Value", ""].map((col) => (
           <span
             key={col}
-            className="text-xs font-semibold uppercase tracking-widest"
+            className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
             style={{
-              color: "#64748b",
+              textAlign: col === "Shares" || col === "Price" || col === "Value" ? "right" : "left",
               fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-              textAlign: col === "Shares" || col === "Last Price" || col === "Total Value" ? "right" : "left",
             }}
           >
             {col}
@@ -75,83 +49,70 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
         ))}
       </div>
 
-      {/* Rows */}
-      {assets.map((asset, idx) => {
+      {/* Asset rows */}
+      {assets.map((asset) => {
         const totalValue = asset.shares * asset.lastPrice;
-        const isLast = idx === assets.length - 1;
 
         return (
           <div
             key={asset.id}
-            className="grid items-center px-5 py-3.5 transition-colors duration-150 group cursor-pointer hover:bg-slate-700/40"
+            className="grid items-center p-3 rounded-2xl group cursor-pointer transition-colors duration-150 hover:bg-slate-100"
             style={{
-              gridTemplateColumns: "1fr 1fr 1fr 1fr 44px",
-              borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr 36px",
+              backgroundColor: "#f8fafc",
+              border: "1px solid rgba(226,232,240,0.5)",
             }}
           >
             {/* Ticker */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                style={{ backgroundColor: "rgba(37,99,235,0.2)" }}
+                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                style={{ backgroundColor: "#eff6ff" }}
               >
                 <span
                   className="text-xs font-bold"
                   style={{
-                    color: "#60a5fa",
+                    color: "#1a4b9f",
                     fontFamily: "var(--font-mono), 'DM Mono', monospace",
                   }}
                 >
-                  {asset.ticker.charAt(0)}
+                  {asset.ticker.slice(0, 2)}
                 </span>
               </div>
               <div>
                 <span
-                  className="text-sm font-semibold px-2.5 py-0.5 rounded-full"
+                  className="text-xs font-bold text-slate-800"
                   style={{
-                    backgroundColor: "rgba(37,99,235,0.15)",
-                    color: "#93c5fd",
                     fontFamily: "var(--font-mono), 'DM Mono', monospace",
                     letterSpacing: "0.04em",
                   }}
                 >
                   {asset.ticker}
                 </span>
-                <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
-                  {formatDate(asset.updatedAt)}
-                </p>
+                <p className="text-[10px] text-slate-400">{formatDate(asset.updatedAt)}</p>
               </div>
             </div>
 
             {/* Shares */}
             <span
-              className="text-sm tabular-nums text-right"
-              style={{
-                color: "#94a3b8",
-                fontFamily: "var(--font-mono), 'DM Mono', monospace",
-              }}
+              className="text-xs tabular-nums text-right text-slate-500"
+              style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
             >
               {asset.shares.toLocaleString(undefined, { maximumFractionDigits: 4 })}
             </span>
 
             {/* Last Price */}
             <span
-              className="text-sm tabular-nums text-right"
-              style={{
-                color: "#94a3b8",
-                fontFamily: "var(--font-mono), 'DM Mono', monospace",
-              }}
+              className="text-xs tabular-nums text-right text-slate-500"
+              style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
             >
               {formatCurrency(asset.lastPrice)}
             </span>
 
             {/* Total Value */}
             <span
-              className="text-sm font-semibold tabular-nums text-right"
-              style={{
-                color: "#60a5fa",
-                fontFamily: "var(--font-mono), 'DM Mono', monospace",
-              }}
+              className="text-sm font-bold tabular-nums text-right"
+              style={{ color: "#1a4b9f", fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
             >
               {formatCurrency(totalValue)}
             </span>
@@ -164,32 +125,25 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
         );
       })}
 
-      {/* Grand total row */}
+      {/* Grand total */}
       <div
-        className="grid items-center px-5 py-3.5"
+        className="grid items-center px-3 py-3 rounded-2xl"
         style={{
-          gridTemplateColumns: "1fr 1fr 1fr 1fr 44px",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          backgroundColor: "rgba(15,23,42,0.4)",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr 36px",
+          backgroundColor: "#eff6ff",
+          border: "1px solid rgba(26,75,159,0.08)",
         }}
       >
         <span
-          className="text-xs font-semibold uppercase tracking-widest"
-          style={{
-            color: "#64748b",
-            fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
-          }}
+          className="text-[10px] font-bold uppercase tracking-widest text-slate-500"
+          style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}
         >
           Total
         </span>
-        <span />
-        <span />
+        <span /><span />
         <span
-          className="text-base font-bold tabular-nums text-right"
-          style={{
-            color: "#60a5fa",
-            fontFamily: "var(--font-mono), 'DM Mono', monospace",
-          }}
+          className="text-sm font-bold tabular-nums text-right"
+          style={{ color: "#1a4b9f", fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
         >
           {formatCurrency(grandTotal)}
         </span>

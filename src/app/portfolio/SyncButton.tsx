@@ -24,50 +24,47 @@ export default function SyncButton() {
     });
   }
 
-  const statusConfig = {
+  const configs = {
     idle: {
-      icon: isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />,
+      icon: isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />,
       label: isPending ? "Syncing..." : "Sync Prices",
-      style: {
-        backgroundColor: "#1e293b",
-        color: "#60a5fa",
-        border: "1px solid rgba(255,255,255,0.1)",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-      },
+      color: "#3de3b2",
+      bg: "rgba(255,255,255,0.10)",
+      border: "rgba(61,227,178,0.25)",
     },
     success: {
-      icon: <CheckCircle2 className="w-4 h-4" />,
-      label: "Prices updated",
-      style: {
-        backgroundColor: "#052e16",
-        color: "#34d399",
-        border: "1px solid rgba(52,211,153,0.2)",
-        boxShadow: "0 2px 8px rgba(52,211,153,0.1)",
-      },
+      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+      label: "Updated",
+      color: "#3de3b2",
+      bg: "rgba(61,227,178,0.12)",
+      border: "rgba(61,227,178,0.3)",
     },
     error: {
-      icon: <AlertCircle className="w-4 h-4" />,
-      label: "Sync failed",
-      style: {
-        backgroundColor: "#1f0a0d",
-        color: "#fb7185",
-        border: "1px solid rgba(251,113,133,0.2)",
-        boxShadow: "0 2px 8px rgba(251,113,133,0.1)",
-      },
+      icon: <AlertCircle className="w-3.5 h-3.5" />,
+      label: "Failed",
+      color: "#fb7185",
+      bg: "rgba(251,113,133,0.12)",
+      border: "rgba(251,113,133,0.3)",
     },
   };
 
-  const current = statusConfig[status];
+  const c = configs[status];
 
   return (
     <button
       onClick={handleSync}
       disabled={isPending}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98]"
-      style={current.style}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.97]"
+      style={{
+        background: c.bg,
+        color: c.color,
+        border: `1px solid ${c.border}`,
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
     >
-      {current.icon}
-      {current.label}
+      {c.icon}
+      {c.label}
     </button>
   );
 }
