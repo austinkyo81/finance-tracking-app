@@ -13,78 +13,100 @@ export default async function PortfolioPage() {
   const totalPositions = assets.length;
 
   return (
-    <div className="flex-1 flex flex-col space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="flex flex-1 flex-col">
+      {/* ── Page header ── */}
+      <div
+        className="flex items-flex-start justify-between"
+        style={{ padding: "6px 22px 16px" }}
+      >
         <div>
           <h1
-            className="text-2xl font-bold tracking-tight text-white"
-            style={{ letterSpacing: "-0.02em" }}
+            className="font-bold text-white"
+            style={{ fontSize: "27px", letterSpacing: "-0.5px" }}
           >
             Stock Portfolio
           </h1>
-          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Market Engine Asset Tracker
+          <p
+            className="mt-0.5"
+            style={{ fontSize: "13px", color: "rgba(219,234,254,0.8)" }}
+          >
+            Market engine asset tracker
           </p>
         </div>
+        {/* Sync button — glass style from spec */}
         <SyncButton />
       </div>
 
-      {/* Glassmorphic hero card */}
+      {/* ── Hero value card — glass, 26px radius ── */}
       <div
-        className="rounded-3xl p-6"
         style={{
-          background: "rgba(255,255,255,0.10)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+          margin: "0 22px",
+          background: "rgba(255,255,255,0.12)",
+          border: "1px solid rgba(255,255,255,0.16)",
+          borderRadius: "26px",
+          padding: "20px 22px",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
         }}
       >
-        <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.60)" }}>
+        <p
+          className="font-medium"
+          style={{ fontSize: "12px", color: "rgba(219,234,254,0.85)" }}
+        >
           Aggregate Holdings Evaluation
-        </span>
-        <div
-          className="text-4xl font-extrabold tracking-tight my-1.5 text-white"
+        </p>
+        <p
+          className="font-extrabold text-white"
           style={{
+            fontSize: "38px",
+            letterSpacing: "-1.5px",
+            margin: "4px 0 6px",
             fontFamily: "var(--font-mono), 'DM Mono', monospace",
-            letterSpacing: "-0.03em",
           }}
         >
           {formatCurrency(totalValue)}
-        </div>
-        <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "#3de3b2" }}>
-          <TrendingUp className="w-3.5 h-3.5" />
+        </p>
+        <div
+          className="flex items-center gap-1.5 font-semibold"
+          style={{ fontSize: "12.5px", color: "#3de3b2" }}
+        >
+          <TrendingUp className="w-3.5 h-3.5" aria-hidden="true" />
           <span>
             {totalPositions} position{totalPositions !== 1 ? "s" : ""} · live market data
           </span>
         </div>
       </div>
 
-      {/* White sliding sheet */}
+      {/* ── White sheet — Position Ledger ── */}
       <div
-        className="bg-white -mx-4 flex-1 px-5 pt-6 pb-32"
-        style={{
-          borderRadius: "2.5rem 2.5rem 0 0",
-          boxShadow: "0 -8px 40px rgba(26,75,159,0.12)",
-        }}
+        className="sheet animate-fade-in-up"
+        style={{ marginTop: "18px" }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2
-            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
-            style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}
-          >
-            Position Ledger Blocks
-          </h2>
-          <Sliders className="w-4 h-4 text-slate-400" />
+        {/* Sheet header */}
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p
+              className="font-bold uppercase"
+              style={{ fontSize: "11px", letterSpacing: "1px", color: "#94a3b8", marginBottom: "4px" }}
+            >
+              Holdings
+            </p>
+            <h2
+              className="font-bold"
+              style={{ fontSize: "18px", letterSpacing: "-0.3px", color: "#0f172a", margin: 0 }}
+            >
+              Position Ledger
+            </h2>
+          </div>
+          <Sliders className="w-[18px] h-[18px]" style={{ color: "#94a3b8" }} aria-hidden="true" />
         </div>
 
-        {/* Add position form inside sheet */}
+        {/* Add position form */}
         <div className="mb-5">
           <PortfolioForm />
         </div>
 
-        {/* Holdings table */}
+        {/* Holdings */}
         <PortfolioTable assets={assets} />
       </div>
     </div>

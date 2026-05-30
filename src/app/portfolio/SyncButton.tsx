@@ -2,16 +2,18 @@
 
 import { useState, useTransition } from "react";
 import { syncStockPrices } from "@/app/portfolio/actions";
-import { RefreshCw, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 type Status = "idle" | "success" | "error";
 
 export default function SyncButton() {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<Status>("idle");
+  const [spinning, setSpinning] = useState(false);
 
   function handleSync() {
     setStatus("idle");
+    setSpinning(true);
     startTransition(async () => {
       try {
         await syncStockPrices();
@@ -20,51 +22,42 @@ export default function SyncButton() {
       } catch {
         setStatus("error");
         setTimeout(() => setStatus("idle"), 4000);
+      } finally {
+        setTimeout(() => setSpinning(false), 700);
       }
     });
   }
 
-  const configs = {
-    idle: {
-      icon: isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />,
-      label: isPending ? "Syncing..." : "Sync Prices",
-      color: "#3de3b2",
-      bg: "rgba(255,255,255,0.10)",
-      border: "rgba(61,227,178,0.25)",
-    },
-    success: {
-      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-      label: "Updated",
-      color: "#3de3b2",
-      bg: "rgba(61,227,178,0.12)",
-      border: "rgba(61,227,178,0.3)",
-    },
-    error: {
-      icon: <AlertCircle className="w-3.5 h-3.5" />,
-      label: "Failed",
-      color: "#fb7185",
-      bg: "rgba(251,113,133,0.12)",
-      border: "rgba(251,113,133,0.3)",
-    },
-  };
+  const label =
+    status === "success" ? "Updated" :
+    status === "error"   ? "Failed"  :
+    isPending            ? "Syncing…" : "Sync";
 
-  const c = configs[status];
+  const iconColor =
+    status === "error" ? "#fb7185" : "#3de3b2";
 
   return (
     <button
       onClick={handleSync}
       disabled={isPending}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.97]"
+      aria-label="Sync stock prices"
+      className="inline-flex items-center gap-1.5 font-bold text-white transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.97] hover:brightness-110"
       style={{
-        background: c.bg,
-        color: c.color,
-        border: `1px solid ${c.border}`,
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,255,255,0.2)",
+        background: "rgba(255,255,255,0.12)",
+        borderRadius: "13px",
+        padding: "9px 13px",
+        fontSize: "12px",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
       }}
     >
-      {c.icon}
-      {c.label}
+      <RefreshCw
+        className={spinning ? "animate-spin-once" : ""}
+        style={{ width: "14px", height: "14px", color: iconColor, transition: "color 0.3s" }}
+        aria-hidden="true"
+      />
+      {label}
     </button>
   );
 }

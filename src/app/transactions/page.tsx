@@ -17,85 +17,103 @@ export default async function TransactionsPage() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="flex-1 flex flex-col space-y-5">
-      {/* Header */}
-      <div>
+    <div className="flex flex-1 flex-col">
+      {/* ── Page header ── */}
+      <div style={{ padding: "6px 22px 18px" }}>
         <h1
-          className="text-2xl font-bold tracking-tight text-white"
-          style={{ letterSpacing: "-0.02em" }}
+          className="font-bold text-white"
+          style={{ fontSize: "27px", letterSpacing: "-0.5px" }}
         >
           Ledger Stream
         </h1>
-        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
-          Manage cash operations records
+        <p
+          className="mt-0.5"
+          style={{ fontSize: "13px", color: "rgba(219,234,254,0.8)" }}
+        >
+          Manage your cash operations
         </p>
       </div>
 
-      {/* 2-col stat cards on gradient */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* ── 2-col stat cards on gradient ── */}
+      <div
+        className="grid grid-cols-2"
+        style={{ gap: "12px", padding: "0 22px 18px" }}
+      >
         <div
-          className="rounded-2xl p-4"
+          className="rounded-[22px]"
           style={{
-            background: "rgba(255,255,255,0.10)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.12)",
+            border: "1px solid rgba(255,255,255,0.16)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            padding: "15px 16px",
           }}
         >
-          <p
-            className="text-[10px] font-bold uppercase tracking-widest mb-1"
-            style={{ color: "rgba(255,255,255,0.55)" }}
-          >
-            Income
+          <p style={{ fontSize: "12px", color: "rgba(219,234,254,0.85)", fontWeight: 500, marginBottom: "9px" }}>
+            Total Income
           </p>
           <p
-            className="text-lg font-bold text-white"
-            style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
+            className="font-bold text-white"
+            style={{
+              fontSize: "20px",
+              letterSpacing: "-0.4px",
+              fontFamily: "var(--font-mono), 'DM Mono', monospace",
+            }}
           >
             +{formatCurrency(totalIncome)}
           </p>
+          <p className="mt-0.5 font-semibold" style={{ fontSize: "11px", color: "#3de3b2" }}>
+            ▲ all time
+          </p>
         </div>
         <div
-          className="rounded-2xl p-4"
+          className="rounded-[22px]"
           style={{
-            background: "rgba(255,255,255,0.10)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.12)",
+            border: "1px solid rgba(255,255,255,0.16)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            padding: "15px 16px",
           }}
         >
-          <p
-            className="text-[10px] font-bold uppercase tracking-widest mb-1"
-            style={{ color: "rgba(255,255,255,0.55)" }}
-          >
-            Expenses
+          <p style={{ fontSize: "12px", color: "rgba(219,234,254,0.85)", fontWeight: 500, marginBottom: "9px" }}>
+            Total Expenses
           </p>
           <p
-            className="text-lg font-bold text-white"
-            style={{ fontFamily: "var(--font-mono), 'DM Mono', monospace" }}
+            className="font-bold text-white"
+            style={{
+              fontSize: "20px",
+              letterSpacing: "-0.4px",
+              fontFamily: "var(--font-mono), 'DM Mono', monospace",
+            }}
           >
             −{formatCurrency(totalExpenses)}
+          </p>
+          <p className="mt-0.5 font-semibold" style={{ fontSize: "11px", color: "#fca5a5" }}>
+            ▼ all time
           </p>
         </div>
       </div>
 
-      {/* Transaction form — white card floating on gradient */}
+      {/* ── Add Transaction form card ── */}
       <TransactionForm />
 
-      {/* White sliding sheet — transaction ledger */}
+      {/* ── White sheet — Transaction Records Log ── */}
       <div
-        className="bg-white -mx-4 flex-1 px-5 pt-6 pb-32"
-        style={{
-          borderRadius: "2.5rem 2.5rem 0 0",
-          boxShadow: "0 -8px 40px rgba(26,75,159,0.12)",
-        }}
+        className="sheet animate-fade-in-up"
+        style={{ marginTop: "20px" }}
       >
-        <h2
-          className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4"
-          style={{ fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif" }}
+        <p
+          className="font-bold uppercase"
+          style={{
+            fontSize: "11px",
+            letterSpacing: "1px",
+            color: "#94a3b8",
+            marginBottom: "12px",
+          }}
         >
-          Transactions Records Log
-        </h2>
+          Transaction Records Log
+        </p>
         <TransactionList transactions={transactions} />
       </div>
     </div>

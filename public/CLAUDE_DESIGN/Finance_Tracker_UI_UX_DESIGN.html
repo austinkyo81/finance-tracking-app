@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finance Tracker — Prototype</title>
+<style>
+  :root{
+    --blue-deep:#1A4B9F;
+    --blue-mid:#2563EB;
+    --blue-light:#3B82F6;
+    --mint:#3DE3B2;
+    --ink:#0F172A;
+    --slate-400:#94A3B8;
+    --slate-500:#64748B;
+    --slate-50:#F8FAFC;
+    --slate-100:#F1F5F9;
+    --nav:#0B1220;
+    --radius-sheet:34px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #2f6bd6 0%, transparent 55%),
+      linear-gradient(180deg,#0d2d63 0%, #173f86 35%, #1f56ad 100%);
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:40px 20px;
+    color:#fff;
+    overflow-x:hidden;
+  }
+  /* subtle grid backdrop like the mockups */
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+    background-size:160px 160px;
+    pointer-events:none;
+  }
+  body::after{
+    content:"";position:fixed;left:50%;top:58%;width:760px;height:760px;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(96,165,250,.55) 0%, rgba(59,130,246,0) 62%);
+    pointer-events:none;
+  }
+
+  /* ===== Device ===== */
+  .device{
+    position:relative;
+    width:390px;height:844px;
+    border-radius:56px;
+    background:#0a0a0c;
+    padding:13px;
+    box-shadow:
+      0 0 0 2px #2b2b30,
+      0 50px 90px -30px rgba(3,12,40,.85),
+      0 20px 50px -20px rgba(3,12,40,.6);
+    flex:0 0 auto;
+  }
+  .screen{
+    position:relative;width:100%;height:100%;
+    border-radius:44px;overflow:hidden;
+    background:linear-gradient(180deg,var(--blue-deep) 0%, var(--blue-mid) 48%, var(--blue-light) 100%);
+    display:flex;flex-direction:column;
+  }
+  /* dynamic island */
+  .island{
+    position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:122px;height:35px;background:#000;border-radius:20px;z-index:60;
+  }
+  /* status bar */
+  .status{
+    position:absolute;top:0;left:0;right:0;height:54px;z-index:55;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 30px 0;font-size:15px;font-weight:600;color:#fff;
+  }
+  .status .sig{display:flex;align-items:center;gap:7px;}
+  .status svg{display:block;}
+
+  /* scrollable view area */
+  .views{position:absolute;inset:0;}
+  .view{
+    position:absolute;inset:0;
+    padding-top:62px;
+    overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    display:none;
+    flex-direction:column;
+  }
+  .view::-webkit-scrollbar{display:none;}
+  .view.active{display:flex;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  .pad{padding:0 22px;}
+
+  /* greeting */
+  .head{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 22px 0;}
+  .head h1{font-size:27px;font-weight:700;letter-spacing:-.5px;}
+  .head p{font-size:13px;color:rgba(219,234,254,.8);margin-top:3px;}
+  .avatar{
+    width:42px;height:42px;border-radius:50%;flex:0 0 auto;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);
+    display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);
+  }
+
+  /* net worth circle */
+  .ring-wrap{display:flex;justify-content:center;margin:18px 0 4px;}
+  .ring{position:relative;width:236px;height:236px;}
+  .ring .glass{
+    position:absolute;inset:20px;border-radius:50%;
+    background:radial-gradient(circle at 50% 38%, rgba(255,255,255,.28), rgba(255,255,255,.06) 60%, rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.22);
+    backdrop-filter:blur(6px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    box-shadow:inset 0 2px 18px rgba(255,255,255,.25), inset 0 -16px 40px rgba(13,45,99,.35);
+  }
+  .ring .glass .label{font-size:12.5px;color:rgba(226,240,255,.92);line-height:1.35;max-width:130px;margin-bottom:6px;}
+  .ring .glass .val{font-size:46px;font-weight:800;letter-spacing:-1.5px;}
+  .ring .glass .sub{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mint);margin-top:6px;font-weight:600;}
+  .ring .glass .coin{font-size:18px;margin-bottom:2px;}
+  .ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
+
+  /* week selector */
+  .week{display:flex;justify-content:space-between;gap:6px;padding:14px 26px 16px;}
+  .week .day{
+    width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;color:rgba(255,255,255,.75);
+    border:1px dashed rgba(255,255,255,.32);
+  }
+  .week .day.on{background:#fff;color:var(--ink);border:none;box-shadow:0 6px 16px rgba(0,0,0,.18);}
+  .week .day.dim{border-style:solid;border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.4);}
+
+  /* mini stat cards */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px 6px;}
+  .stat{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);
+    border-radius:22px;padding:15px 16px;backdrop-filter:blur(10px);
+  }
+  .stat .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+  .stat .top span{font-size:12px;color:rgba(219,234,254,.85);font-weight:500;}
+  .stat .num{font-size:20px;font-weight:700;letter-spacing:-.4px;}
+  .stat .delta{font-size:11px;font-weight:600;margin-top:3px;}
+  .up{color:var(--mint);} .down{color:#FCA5A5;}
+
+  /* white sheet */
+  .sheet{
+    background:#fff;color:var(--ink);
+    border-radius:var(--radius-sheet) var(--radius-sheet) 0 0;
+    margin-top:18px;padding:24px 22px 130px;
+    flex:1;
+    box-shadow:0 -10px 40px rgba(8,30,70,.25);
+  }
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .sheet-head h2{font-size:18px;font-weight:700;letter-spacing:-.3px;}
+  .sheet-head .muted{font-size:11.5px;color:var(--slate-400);margin-top:2px;}
+  .icon-btn{
+    width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--slate-100);color:var(--ink);display:flex;align-items:center;justify-content:center;
+    transition:.18s;
+  }
+  .icon-btn:hover{background:#E2E8F0;}
+  .icon-btn.dark{background:var(--ink);color:#fff;}
+
+  .row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--slate-50);border:1px solid rgba(241,245,249,.9);
+    border-radius:20px;padding:13px 14px;margin-bottom:10px;
+    transition:.16s;cursor:pointer;
+  }
+  .row:hover{background:#EEF4FF;}
+  .row .left{display:flex;align-items:center;gap:12px;}
+  .badge{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .badge.red{background:#FEE2E2;color:#EF4444;}
+  .badge.green{background:#D1FAE5;color:#059669;}
+  .badge.blue{background:#DBEAFE;color:#2563EB;}
+  .badge.violet{background:#EDE9FE;color:#7C3AED;}
+  .badge.amber{background:#FEF3C7;color:#D97706;}
+  .row .name{font-size:14.5px;font-weight:600;letter-spacing:-.2px;}
+  .row .cat{font-size:11px;color:var(--slate-400);margin-top:2px;}
+  .row .amt{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+  .amt.neg{color:var(--ink);} .amt.pos{color:#059669;}
+
+  .section-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--slate-400);margin:4px 0 12px;}
+
+  /* ===== Transactions form ===== */
+  .form-card{
+    background:var(--slate-50);border:1px solid var(--slate-100);
+    border-radius:26px;padding:18px;margin:0 22px;
+  }
+  .form-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #E9EEF5;margin-bottom:14px;}
+  .form-head h3{font-size:15px;font-weight:700;color:var(--ink);}
+  .chip{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#2563EB;background:#DBEAFE;padding:4px 10px;border-radius:20px;}
+  .toggle{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#E7EDF5;padding:4px;border-radius:14px;margin-bottom:14px;}
+  .toggle button{
+    border:none;cursor:pointer;padding:9px;border-radius:11px;font-size:13px;font-weight:700;color:var(--slate-500);background:transparent;transition:.16s;
+  }
+  .toggle button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(15,23,42,.1);}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--slate-400);margin-bottom:6px;}
+  .field .inp{position:relative;}
+  .field .inp .lead{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--slate-400);font-weight:600;}
+  .field input,.field select{
+    width:100%;border:1px solid #E2E8F0;background:#fff;border-radius:14px;
+    padding:13px 14px 13px 30px;font-size:15px;color:var(--ink);font-family:inherit;font-weight:600;outline:none;transition:.16s;
+  }
+  .field select{padding-left:14px;appearance:none;cursor:pointer;}
+  .field input::placeholder{color:#CBD5E1;font-weight:500;}
+  .field input:focus,.field select:focus{border-color:var(--blue-mid);box-shadow:0 0 0 4px rgba(37,99,235,.12);}
+  .field .big{font-size:30px;font-weight:800;letter-spacing:-1px;padding-left:38px;}
+  .field .big + .lead, .inp .lead.big{font-size:26px;}
+  .submit{
+    width:100%;border:none;cursor:pointer;margin-top:4px;
+    background:var(--blue-deep);color:#fff;border-radius:16px;padding:15px;
+    font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 10px 22px -8px rgba(26,75,159,.7);transition:.16s;
+  }
+  .submit:hover{background:#153e85;transform:translateY(-1px);}
+
+  /* ===== Portfolio hero ===== */
+  .hero{
+    margin:6px 22px 0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);
+    border-radius:26px;padding:20px 22px;backdrop-filter:blur(10px);
+  }
+  .hero .cap{font-size:12px;color:rgba(219,234,254,.85);font-weight:500;}
+  .hero .big{font-size:38px;font-weight:800;letter-spacing:-1.5px;margin:4px 0 6px;}
+  .hero .trend{display:flex;align-items:center;gap:6px;color:var(--mint);font-size:12.5px;font-weight:600;}
+  .ticker{
+    width:46px;height:46px;border-radius:14px;background:#DBEAFE;color:#1E3A8A;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto;letter-spacing:.3px;
+  }
+  .ticker.a{background:#F1F5F9;color:#0F172A;}
+  .ticker.m{background:#DBEAFE;color:#1D4ED8;}
+  .ticker.n{background:#DCFCE7;color:#15803D;}
+  .ticker.g{background:#FEF3C7;color:#B45309;}
+  .ticker.t{background:#FEE2E2;color:#B91C1C;}
+  .pill-delta{font-size:10.5px;font-weight:800;color:#047857;background:#D1FAE5;border:1px solid #A7F3D0;padding:3px 7px;border-radius:8px;display:inline-flex;align-items:center;gap:3px;}
+  .pill-delta.neg{color:#B91C1C;background:#FEE2E2;border-color:#FECACA;}
+  .sync{
+    border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;
+    padding:9px 13px;border-radius:13px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;transition:.16s;
+  }
+  .sync:hover{background:rgba(255,255,255,.22);}
+  .sync svg{transition:transform .6s;}
+  .sync.spin svg{transform:rotate(360deg);}
+
+  /* ===== Analytics ===== */
+  .seg{display:flex;gap:4px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:4px;margin:4px 22px 18px;}
+  .seg button{flex:1;border:none;background:transparent;color:rgba(255,255,255,.8);cursor:pointer;padding:8px;border-radius:10px;font-size:12.5px;font-weight:700;transition:.16s;}
+  .seg button.on{background:#fff;color:var(--ink);}
+  .ana-head{padding:0 24px 4px;}
+  .ana-head .k{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(219,234,254,.75);font-weight:600;}
+  .ana-head .v{font-size:32px;font-weight:800;letter-spacing:-1px;}
+  .ana-head .v small{font-size:16px;font-weight:600;color:rgba(255,255,255,.7);}
+  .ana-head .r{font-size:12px;color:rgba(219,234,254,.7);margin-top:2px;}
+  .chart{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;height:170px;padding:24px 26px 8px;}
+  .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;}
+  .bar .col{width:100%;max-width:30px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.55));position:relative;}
+  .bar .col.hl{background:linear-gradient(180deg,var(--mint),#27c79b);box-shadow:0 0 22px rgba(61,227,178,.55);}
+  .bar .col.ghost{background:transparent;border:1.5px dashed rgba(255,255,255,.45);}
+  .bar .tag{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap;}
+  .bar .lbl{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;}
+  .prog{height:8px;border-radius:6px;background:#E9EEF5;overflow:hidden;margin-top:10px;}
+  .prog > i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#34d399,var(--mint));}
+
+  /* ===== bottom nav ===== */
+  .nav{
+    position:absolute;left:50%;transform:translateX(-50%);bottom:22px;z-index:70;
+    width:330px;height:64px;border-radius:40px;
+    background:rgba(11,18,32,.92);backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.07);
+    box-shadow:0 18px 40px -10px rgba(0,0,0,.6);
+    display:flex;align-items:center;justify-content:space-around;padding:0 14px;
+  }
+  .nav button{
+    border:none;background:transparent;cursor:pointer;color:rgba(255,255,255,.45);
+    width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:.18s;
+  }
+  .nav button.on{color:#fff;}
+  .nav button.on::after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:var(--mint);transform:translateY(17px);}
+  .nav .add{background:var(--mint);color:#06281f;width:50px;height:50px;box-shadow:0 8px 20px -4px rgba(61,227,178,.7);}
+  .nav .add:hover{transform:translateY(-2px);}
+
+  .home-ind{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);width:128px;height:5px;border-radius:3px;background:rgba(255,255,255,.55);z-index:80;}
+
+  /* add-sheet modal */
+  .modal{position:absolute;inset:0;z-index:90;display:none;}
+  .modal.open{display:block;}
+  .modal .scrim{position:absolute;inset:0;background:rgba(4,12,30,.5);backdrop-filter:blur(2px);animation:fade .25s;}
+  .modal .panel{
+    position:absolute;left:0;right:0;bottom:0;background:#fff;color:var(--ink);
+    border-radius:30px 30px 0 0;padding:22px 22px 30px;transform:translateY(0);
+    animation:rise .32s cubic-bezier(.2,.8,.2,1);max-height:88%;overflow-y:auto;
+  }
+  .modal .panel::-webkit-scrollbar{display:none;}
+  @keyframes rise{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  .grab{width:42px;height:5px;border-radius:3px;background:#E2E8F0;margin:0 auto 16px;}
+  .close-x{position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;background:var(--slate-100);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate-500);}
+
+  .toast{
+    position:absolute;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:600;
+    z-index:95;opacity:0;transition:.3s;display:flex;align-items:center;gap:8px;box-shadow:0 12px 30px rgba(0,0,0,.4);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .caption{position:fixed;bottom:26px;left:0;right:0;text-align:center;color:rgba(255,255,255,.5);font-size:12px;letter-spacing:.3px;z-index:5;}
+  @media(max-height:900px){.caption{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="screen">
+    <div class="island"></div>
+
+    <!-- status bar -->
+    <div class="status">
+      <span>1:47</span>
+      <span class="sig">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="1" fill="#fff"/><rect x="5" y="4" width="3" height="8" rx="1" fill="#fff"/><rect x="10" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8.5 4.5 6.6 6.6 0 0 0 3.9 6.4L2.5 4.9A8.6 8.6 0 0 1 8.5 2.5Z" fill="#fff"/><path d="M8.5 6.2c1.3 0 2.5.5 3.4 1.4l-1.5 1.5a2.7 2.7 0 0 0-3.8 0L5.1 7.6A4.8 4.8 0 0 1 8.5 6.2Z" fill="#fff"/><circle cx="8.5" cy="10.4" r="1.4" fill="#fff"/></svg>
+        <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="1" y="1" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5" stroke-width="1.2"/><rect x="3" y="3" width="16" height="7" rx="1.5" fill="#fff"/><rect x="23" y="4" width="2" height="5" rx="1" fill="#fff" fill-opacity=".6"/></svg>
+      </span>
+    </div>
+
+    <div class="views" id="views">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="view active" id="v-home">
+        <div class="head">
+          <div>
+            <h1>Hello, Olivia</h1>
+            <p>You're on track to financial freedom</p>
+          </div>
+          <div class="avatar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+
+        <div class="ring-wrap">
+          <div class="ring">
+            <svg width="236" height="236" viewBox="0 0 236 236">
+              <circle cx="118" cy="118" r="108" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="6"/>
+              <circle cx="118" cy="118" r="108" fill="none" stroke="url(#mg)" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="678.5" stroke-dashoffset="170"/>
+              <circle cx="10" cy="118" r="6" fill="#3DE3B2"/>
+              <defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3DE3B2"/><stop offset="1" stop-color="#67e8c4"/></linearGradient></defs>
+            </svg>
+            <div class="glass">
+              <div class="coin">💎</div>
+              <div class="label">Total Net Worth</div>
+              <div class="val">$12,450</div>
+              <div class="sub">Wealth Level · 83</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week">
+          <div class="day dim">M</div>
+          <div class="day dim">T</div>
+          <div class="day on">W</div>
+          <div class="day">T</div>
+          <div class="day">F</div>
+          <div class="day">S</div>
+          <div class="day">S</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="top"><span>Cash Flow</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bfdbfe" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20" stroke-linecap="round"/></svg>
+            </div>
+            <div class="num">$3,450.00</div>
+            <div class="delta up">▲ +12.4% this month</div>
+          </div>
+          <div class="stat">
+            <div class="top"><span>Portfolio</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DE3B2" stroke-width="1.8"><path d="M3 17l5-5 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 7h4v4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="num">$9,000.83</div>
+            <div class="delta up">▲ +4.5% today</div>
+          </div>
+        </div>
+
+        <div class="sheet">
+          <div class="sheet-head">
+            <div>
+              <h2>Recent Activity</h2>
+              <div class="muted">Today, 30 May 2026 · 4 records</div>
+            </div>
+            <button class="icon-btn dark" onclick="openAdd()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+
+          <div class="row">
+            <div class="left"><div class="badge red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10M17 7v10H7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div><div class="name">Netflix Subscription</div><div class="cat">Subscriptions · 09:01</div></div></div>
+            <span class="amt neg">−$15.49</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 17L7 7M7 17V7h10" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div><div class="name">Salary Deposit</div><div class="cat">Income · 08:30</div></div></div>
+            <span class="amt pos">+$3,200.00</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11A2 2 0 0 1 4.5 19.5L3 9Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg></div>
+              <div><div class="name">Grocery Shopping</div><div class="cat">Food & Dining · Yesterday</div></div></div>
+            <span class="amt neg">−$64.20</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge violet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div><div class="name">NVDA Dividend</div><div class="cat">Investments · Yesterday</div></div></div>
+            <span class="amt pos">+$48.00</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TRANSACTIONS ============ -->
+      <section class="view" id="v-tx">
+        <div class="head" style="margin-bottom:18px;">
+          <div>
+            <h1>Ledger Stream</h1>
+            <p>Manage your cash operations</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-head">
+            <h3>Add Transaction</h3>
+            <span class="chip">Ledger Source</span>
+          </div>
+          <div class="toggle">
+            <button class="on" data-t="expense" onclick="setType(this)">Expense</button>
+            <button data-t="income" onclick="setType(this)">Income</button>
+          </div>
+          <div class="field">
+            <label>Amount</label>
+            <div class="inp"><span class="lead big">$</span><input class="big" type="number" placeholder="0.00" inputmode="decimal" /></div>
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <div class="inp"><select>
+              <option>Rent & Living</option><option>Food & Dining</option><option selected>Subscriptions</option>
+              <option>Utilities</option><option>Entertainment</option><option>Salary Revenue</option><option>Other</option>
+            </select>
+            <svg style="position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <div class="inp" style="--p:14px;"><input style="padding-left:14px;font-size:15px;" type="text" placeholder="Optional notes…" /></div>
+          </div>
+          <button class="submit" onclick="commitTx()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>
+            Commit Ledger Item
+          </button>
+        </div>
+
+        <div class="sheet" style="margin-top:20px;">
+          <div class="section-label">Transaction Records Log</div>
+          <div class="row">
+            <div class="left"><div class="badge red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10M17 7v10H7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div><div class="name">Grocery Shopping</div><div class="cat">Food & Dining · Today</div></div></div>
+            <span class="amt neg">−$64.20</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 17L7 7M7 17V7h10" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div><div class="name">Consulting Remittance</div><div class="cat">Salary Revenue · Yesterday</div></div></div>
+            <span class="amt pos">+$1,200.00</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10M17 7v10H7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div><div class="name">Netflix Subscription</div><div class="cat">Subscriptions · 2 days ago</div></div></div>
+            <span class="amt neg">−$15.49</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10" stroke-linecap="round"/></svg></div>
+              <div><div class="name">Electric Bill</div><div class="cat">Utilities · 3 days ago</div></div></div>
+            <span class="amt neg">−$88.40</span>
+          </div>
+          <div class="row">
+            <div class="left"><div class="badge amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11A2 2 0 0 1 4.5 19.5L3 9Z"/></svg></div>
+              <div><div class="name">Coffee & Brunch</div><div class="cat">Food & Dining · 4 days ago</div></div></div>
+            <span class="amt neg">−$23.10</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PORTFOLIO ============ -->
+      <section class="view" id="v-port">
+        <div class="head" style="margin-bottom:16px;">
+          <div>
+            <h1>Stock Portfolio</h1>
+            <p>Market engine asset tracker</p>
+          </div>
+          <button class="sync" id="syncBtn" onclick="doSync()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3DE3B2" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7" stroke-linecap="round"/><path d="M21 4v5h-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Sync
+          </button>
+        </div>
+
+        <div class="hero">
+          <div class="cap">Aggregate Holdings Evaluation</div>
+          <div class="big">$8,968.24</div>
+          <div class="trend">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 7h4v4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            +$248.16 (2.85%) outperforming today
+          </div>
+        </div>
+
+        <div class="sheet" style="margin-top:18px;">
+          <div class="sheet-head">
+            <div class="section-label" style="margin:0;">Position Ledger Blocks</div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
+          </div>
+          <div id="holdings"></div>
+        </div>
+      </section>
+
+      <!-- ============ ANALYTICS ============ -->
+      <section class="view" id="v-ana">
+        <div class="head" style="margin-bottom:14px;">
+          <div>
+            <h1>Analytics</h1>
+            <p>Where your money moves</p>
+          </div>
+        </div>
+
+        <div class="seg" id="seg">
+          <button>D</button><button class="on">W</button><button>M</button><button>6M</button><button>Y</button>
+        </div>
+
+        <div class="ana-head">
+          <div class="k">Total Spending</div>
+          <div class="v">$1,284 <small>/ $2,000 budget</small></div>
+          <div class="r">24 – 30 May 2026</div>
+        </div>
+
+        <div class="chart">
+          <div class="bar"><div class="col" style="height:32%"><span class="tag">$92</span></div><span class="lbl">Sun</span></div>
+          <div class="bar"><div class="col" style="height:50%"><span class="tag">$144</span></div><span class="lbl">Mon</span></div>
+          <div class="bar"><div class="col" style="height:28%"><span class="tag">$80</span></div><span class="lbl">Tue</span></div>
+          <div class="bar"><div class="col" style="height:64%"><span class="tag">$185</span></div><span class="lbl">Wed</span></div>
+          <div class="bar"><div class="col ghost" style="height:80%"><span class="tag">est</span></div><span class="lbl">Thu</span></div>
+          <div class="bar"><div class="col" style="height:44%"><span class="tag">$127</span></div><span class="lbl">Fri</span></div>
+          <div class="bar"><div class="col hl" style="height:72%"><span class="tag">$210</span></div><span class="lbl">Today</span></div>
+        </div>
+
+        <div class="sheet" style="margin-top:10px;">
+          <div class="sheet-head">
+            <div><h2>Spending Breakdown</h2><div class="muted">Top categories this week</div></div>
+            <span style="font-size:12px;font-weight:700;color:#2563EB;">Show All</span>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:14px;font-weight:600;">Rent & Living</span>
+              <span style="font-size:13px;font-weight:700;color:#64748B;">$620 · 48%</span>
+            </div>
+            <div class="prog"><i style="width:48%"></i></div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:14px;font-weight:600;">Food & Dining</span>
+              <span style="font-size:13px;font-weight:700;color:#64748B;">$312 · 24%</span>
+            </div>
+            <div class="prog"><i style="width:24%"></i></div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:14px;font-weight:600;">Subscriptions</span>
+              <span style="font-size:13px;font-weight:700;color:#64748B;">$188 · 15%</span>
+            </div>
+            <div class="prog"><i style="width:15%"></i></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:14px;font-weight:600;">Utilities</span>
+              <span style="font-size:13px;font-weight:700;color:#64748B;">$164 · 13%</span>
+            </div>
+            <div class="prog"><i style="width:13%"></i></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- add modal -->
+    <div class="modal" id="modal">
+      <div class="scrim" onclick="closeAdd()"></div>
+      <div class="panel">
+        <div class="grab"></div>
+        <button class="close-x" onclick="closeAdd()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+        </button>
+        <h3 style="font-size:19px;font-weight:700;margin-bottom:4px;">Quick Add</h3>
+        <p style="font-size:12.5px;color:#94A3B8;margin-bottom:18px;">Log a transaction in seconds</p>
+        <div class="toggle">
+          <button class="on" data-t="expense" onclick="setType(this)">Expense</button>
+          <button data-t="income" onclick="setType(this)">Income</button>
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <div class="inp"><span class="lead big">$</span><input class="big" type="number" placeholder="0.00" inputmode="decimal" /></div>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <div class="inp"><select>
+            <option>Food & Dining</option><option>Rent & Living</option><option>Subscriptions</option>
+            <option>Utilities</option><option>Entertainment</option><option>Salary Revenue</option><option>Other</option>
+          </select>
+          <svg style="position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <button class="submit" onclick="commitTx()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>
+          Save Transaction
+        </button>
+      </div>
+    </div>
+
+    <!-- toast -->
+    <div class="toast" id="toast">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DE3B2" stroke-width="2.4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Transaction saved</span>
+    </div>
+
+    <!-- bottom nav -->
+    <div class="nav">
+      <button class="on" data-v="home" onclick="go('home',this)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 11l9-8 9 8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button data-v="tx" onclick="go('tx',this)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="6" width="20" height="13" rx="3"/><path d="M2 10h20M16 15h2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="add" onclick="openAdd()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+      </button>
+      <button data-v="port" onclick="go('port',this)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 17l5-5 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 7h4v4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button data-v="ana" onclick="go('ana',this)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 20V10M12 20V4M19 20v-7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="home-ind"></div>
+  </div>
+</div>
+
+<div class="caption">Personal Finance &amp; Portfolio Tracker · interactive prototype — tap the nav to explore</div>
+
+<script>
+  function go(v, btn){
+    document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+    document.getElementById('v-'+v).classList.add('active');
+    document.querySelectorAll('.nav button[data-v]').forEach(b=>b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    document.getElementById('v-'+v).scrollTop = 0;
+  }
+  function setType(btn){
+    btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  }
+  function openAdd(){ document.getElementById('modal').classList.add('open'); }
+  function closeAdd(){ document.getElementById('modal').classList.remove('open'); }
+  function showToast(){
+    const t=document.getElementById('toast'); t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),1800);
+  }
+  function commitTx(){ closeAdd(); showToast(); }
+
+  // holdings
+  const assets=[
+    {t:'AAPL',n:'Apple Inc.',sh:12,price:175.50,total:2106.00,perf:'+1.25%',cls:'a',up:true},
+    {t:'MSFT',n:'Microsoft',sh:8,price:420.22,total:3361.76,perf:'+0.88%',cls:'m',up:true},
+    {t:'NVDA',n:'NVIDIA',sh:4,price:875.12,total:3500.48,perf:'+4.52%',cls:'n',up:true},
+    {t:'GOOG',n:'Alphabet',sh:6,price:172.40,total:1034.40,perf:'+0.42%',cls:'g',up:true},
+    {t:'TSLA',n:'Tesla',sh:5,price:178.10,total:890.50,perf:'−1.18%',cls:'t',up:false},
+  ];
+  document.getElementById('holdings').innerHTML = assets.map(a=>`
+    <div class="row">
+      <div class="left">
+        <div class="ticker ${a.cls}">${a.t}</div>
+        <div><div class="name">${a.n}</div><div class="cat">${a.sh} shares · $${a.price.toFixed(2)}</div></div>
+      </div>
+      <div style="text-align:right;">
+        <div class="amt" style="margin-bottom:4px;">$${a.total.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+        <span class="pill-delta ${a.up?'':'neg'}">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="${a.up?'':'transform:rotate(90deg)'}"><path d="M7 17L17 7M17 7H9M17 7v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ${a.perf}
+        </span>
+      </div>
+    </div>`).join('');
+
+  function doSync(){
+    const b=document.getElementById('syncBtn'); b.classList.add('spin');
+    setTimeout(()=>b.classList.remove('spin'),700);
+  }
+
+  // analytics segment
+  document.querySelectorAll('#seg button').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');};
+  });
+</script>
+</body>
+</html>

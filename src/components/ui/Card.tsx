@@ -6,38 +6,58 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   headerAction?: React.ReactNode;
+  /** "glass" = glassmorphic on gradient (default), "sheet" = inside white sheet */
+  variant?: "glass" | "sheet";
 }
 
-function Card({ title, children, className, headerAction }: CardProps) {
+function Card({ title, children, className, headerAction, variant = "glass" }: CardProps) {
+  const isGlass = variant === "glass";
+
   return (
     <div
-      className={cn("rounded-2xl overflow-hidden", className)}
-      style={{
-        backgroundColor: "#1e293b",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)",
-      }}
+      className={cn("overflow-hidden", className)}
+      style={
+        isGlass
+          ? {
+              background: "rgba(255,255,255,0.12)",
+              border: "1px solid rgba(255,255,255,0.16)",
+              borderRadius: "26px",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }
+          : {
+              background: "#f8fafc",
+              border: "1px solid rgba(241,245,249,0.9)",
+              borderRadius: "22px",
+            }
+      }
     >
       {(title || headerAction) && (
         <div
-          className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+          className="flex items-center justify-between"
+          style={{
+            padding: "14px 16px",
+            borderBottom: isGlass
+              ? "1px solid rgba(255,255,255,0.08)"
+              : "1px solid #e9eef5",
+          }}
         >
           {title && (
-            <h2
-              className="text-xs font-semibold uppercase tracking-widest"
+            <p
+              className="font-bold uppercase"
               style={{
-                color: "#64748b",
-                fontFamily: "var(--font-display), 'IBM Plex Sans', sans-serif",
+                fontSize: "11px",
+                letterSpacing: "1px",
+                color: isGlass ? "rgba(219,234,254,0.85)" : "#94a3b8",
               }}
             >
               {title}
-            </h2>
+            </p>
           )}
           {headerAction && <div>{headerAction}</div>}
         </div>
       )}
-      <div className="p-5">{children}</div>
+      <div style={{ padding: "16px" }}>{children}</div>
     </div>
   );
 }

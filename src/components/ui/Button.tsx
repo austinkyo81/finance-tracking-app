@@ -9,6 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
 }
 
+/* Variant styles match the spec's design tokens */
 const variantStyles: Record<ButtonVariant, React.CSSProperties> = {
   default: {
     backgroundColor: "#1e293b",
@@ -16,31 +17,32 @@ const variantStyles: Record<ButtonVariant, React.CSSProperties> = {
     border: "1px solid rgba(255,255,255,0.1)",
   },
   primary: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "#1a4b9f",
     color: "#ffffff",
     border: "none",
-    boxShadow: "0 4px 14px rgba(37,99,235,0.4)",
+    boxShadow: "0 10px 22px -8px rgba(26,75,159,0.7)",
   },
   danger: {
-    backgroundColor: "#1f0a0d",
-    color: "#fb7185",
-    border: "1px solid rgba(251,113,133,0.2)",
+    backgroundColor: "#fee2e2",
+    color: "#b91c1c",
+    border: "1px solid #fecaca",
   },
   success: {
-    backgroundColor: "#052e16",
-    color: "#34d399",
-    border: "1px solid rgba(52,211,153,0.2)",
+    backgroundColor: "#d1fae5",
+    color: "#047857",
+    border: "1px solid #a7f3d0",
   },
   ghost: {
-    backgroundColor: "transparent",
-    color: "#94a3b8",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    color: "#ffffff",
+    border: "1px solid rgba(255,255,255,0.16)",
+    backdropFilter: "blur(10px)",
   },
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
   sm: "px-3 py-1.5 text-xs gap-1.5",
-  md: "px-4 py-2 text-sm gap-2",
+  md: "px-4 py-2.5 text-sm gap-2",
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -61,14 +63,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled}
         className={cn(
-          "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 cursor-pointer",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
+          "inline-flex items-center justify-center font-bold transition-all duration-200 cursor-pointer",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2",
           "disabled:opacity-40 disabled:cursor-not-allowed",
-          "hover:brightness-110 active:scale-[0.98]",
+          "hover:brightness-110 active:scale-[0.97]",
           sizeStyles[size],
           className
         )}
-        style={{ ...variantStyles[variant], ...style }}
+        style={{
+          borderRadius: "14px",
+          ...variantStyles[variant],
+          ...style,
+        }}
         {...props}
       >
         {children}

@@ -22,17 +22,17 @@ export default function PortfolioDeleteButton({ id }: PortfolioDeleteButtonProps
       onClick={handleDelete}
       disabled={isPending}
       aria-label="Delete position"
-      className="w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 disabled:opacity-40 cursor-pointer hover:brightness-125"
+      className="flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-150 disabled:opacity-40 cursor-pointer hover:brightness-105"
       style={{
-        backgroundColor: "rgba(251,113,133,0.1)",
-        border: "1px solid rgba(251,113,133,0.15)",
-        color: "#fb7185",
+        backgroundColor: "#fee2e2",
+        border: "1px solid #fecaca",
+        color: "#b91c1c",
       }}
     >
       {isPending ? (
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
       ) : (
-        <Trash2 className="w-3.5 h-3.5" />
+        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
       )}
     </button>
   );
